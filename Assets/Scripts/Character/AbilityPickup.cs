@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 
-public class AbilityPickup : MonoBehaviour
+public class AbilityPickup : NetworkBehaviour
 {
     private int spreadShotAmmo;
 
@@ -73,7 +74,12 @@ public class AbilityPickup : MonoBehaviour
             blade.transform.localPosition = offset;
 
             blade.transform.localRotation = Quaternion.Euler(0, 0, angleDegrees);
+            blade.Initialize();
             blade.gameObject.SetActive(true);
+            blade.IndexId = i;
+            if(isServer){
+                ActivateBlade(i, blade.transform.localRotation, blade.transform.localPosition);
+            }
         }
 
     }
@@ -86,5 +92,28 @@ public class AbilityPickup : MonoBehaviour
     public void ShootRocket()
     {
         rocketAmmo--;
+    }
+
+    [ClientRpc]
+    public void DeactivateBlade(int bladeIndex)
+    {
+        if(bladeIndex < 0 || bladeIndex >= sawBlades.Count)
+        {
+            return;
+        }
+        sawBlades[bladeIndex].gameObject.SetActive(false);
+    }
+
+    [ClientRpc]
+    public void ActivateBlade(int bladeIndex, Quaternion rotation, Vector3 position)
+    {
+        if(bladeIndex < 0 || bladeIndex >= sawBlades.Count)
+        {
+            return;
+        }
+        SawBlade blade = sawBlades[bladeIndex];
+        blade.transform.localPosition = position;
+        blade.transform.localRotation = rotation;
+        sawBlades[bladeIndex].gameObject.SetActive(true);
     }
 }

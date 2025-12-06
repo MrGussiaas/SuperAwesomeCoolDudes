@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 
-public class GateHandler : MonoBehaviour
+public class GateHandler : NetworkBehaviour
 {
     [SerializeField]
     private Direction direction;
@@ -15,12 +16,22 @@ public class GateHandler : MonoBehaviour
 
     private void InitVars()
     {
-        sr = GetComponent<SpriteRenderer>();
-        collider = GetComponent<BoxCollider2D>();
+        if(sr == null){
+            sr = GetComponent<SpriteRenderer>();
+        }
+        if(collider == null){
+            collider = GetComponent<BoxCollider2D>();
+        }
     }
 
     public void Awake()
     {
+        InitVars();
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
         InitVars();
     }
 

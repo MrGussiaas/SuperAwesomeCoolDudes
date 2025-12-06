@@ -7,9 +7,23 @@ public class WaveOrchestrator : MonoBehaviour
     [SerializeField]
     private List<EnemyWave> enemyWaves;
 
+    private RoomController roomController;
+
     private int currentWave = 0;
 
+    private const string ROOM_EXIT = "RoomExit";
+
     int currentEnemyWaveCount = 0;
+
+    public void Awake()
+    {
+        InitVars();
+    }
+
+    private void InitVars()
+    {
+        roomController = GetComponentInParent<RoomController>();
+    }
 
     public void OnEnable()
     {
@@ -32,11 +46,13 @@ public class WaveOrchestrator : MonoBehaviour
            WaveSlot enemyWaveSlot =  firstWave.WaveSlots[i];
            EnemyServerSpawnerManager.Instance.SpawnWave(enemyWaveSlot);
         }
+
     }
 
     private void DoEnemyEliminated()
     {
         currentEnemyWaveCount--;
+        Debug.Log("currentEnemyWaveCount: " + currentEnemyWaveCount);
         Debug.Log("enemyWaveCount:  " + currentEnemyWaveCount);
         if(currentEnemyWaveCount <= 0)
         {
@@ -47,7 +63,7 @@ public class WaveOrchestrator : MonoBehaviour
             }
             else
             {
-                Debug.Log("This wave is done.");
+                roomController.RoomCleared();
             }
         }
     }

@@ -51,6 +51,15 @@ public class VisualEnemy : MonoBehaviour
         moveTowards = StartCoroutine(AdvanceForward(distance));
     }
 
+    public virtual void MoveForward(Vector2 direction, float distance)
+    {
+        if (moveTowards != null)
+        {
+            StopCoroutine(moveTowards);
+        }
+        moveTowards = StartCoroutine(AdvanceForward(direction, distance));
+    }
+
     private IEnumerator RotateTowards(Vector3 direction)
     {
         // Ensure we stay in 2D
@@ -84,6 +93,30 @@ public class VisualEnemy : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0f, 0f, targetAngle);
     }
+
+    private IEnumerator AdvanceForward(Vector2 direction, float distance)
+    {
+            yield return new WaitForFixedUpdate();
+            Vector3 start = transform.position;
+
+            Vector2 dirNorm = direction.normalized;
+            Vector3 end = start + (Vector3)(dirNorm * distance);
+
+            float travelTime = distance / moveSpeed;
+            float elapsed = 0f;
+
+            while (elapsed < travelTime)
+            {
+                float t = elapsed / travelTime;
+                Vector3 newPos = Vector3.Lerp(start, end, t);
+                transform.position = newPos;
+                elapsed += Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
+            }
+
+            transform.position = end;
+    }
+
     
     private IEnumerator AdvanceForward(float distance)
     {

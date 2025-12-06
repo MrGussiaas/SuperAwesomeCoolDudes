@@ -15,6 +15,8 @@ public class GameEvents
 
     public static Action<Direction, int> OnWaveSpawn;
 
-    public static Action<int> OnActivateRoom;
+    public static Action<int, Direction> OnActivateRoom;
+
+    public static Action<PowerUp> PowerUpRemovedFromRoom;
 
 }

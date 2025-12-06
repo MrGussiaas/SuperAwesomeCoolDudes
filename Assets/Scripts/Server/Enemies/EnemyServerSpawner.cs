@@ -102,7 +102,7 @@ public class EnemyServerSpawner : NetworkBehaviour
     {
         return serverEnemyPool.Get();
     }
-
+    
     private Vector3 GetRandomPointInCircle()
     {
         // Pick a random point inside a unit circle (returns x,y)
@@ -268,6 +268,14 @@ public class EnemyServerSpawner : NetworkBehaviour
         var visual = VisualEnemyManager.Instance.GetEnemyById(enemyId);
         if (visual != null)
             visual.MoveForward(distance);
+    }
+
+    [ClientRpc]
+    public void RpcStartEnemyMove(int enemyId, Vector2 direction, float distance)
+    {
+        var visual = VisualEnemyManager.Instance.GetEnemyById(enemyId);
+        if (visual != null)
+            visual.MoveForward(direction, distance);
     }
 
     [ClientRpc]

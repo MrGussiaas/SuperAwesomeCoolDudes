@@ -53,7 +53,8 @@ public class PlayerCollisions : MonoBehaviour
             PowerUp powerUp = wall.GetComponent<PowerUp>();
             Debug.Log("Do Power up logic pickup here: " + powerUp.PowerUpType);
             abilityPickup.DoPickeup(powerUp.PowerUpType, powerUp.IntitaliAmmoAmount);
-            powerUp.gameObject.SetActive(false);
+            GameEvents.PowerUpRemovedFromRoom(powerUp);
+            
 
         }
         if (!wall.CompareTag(WALL)) return;

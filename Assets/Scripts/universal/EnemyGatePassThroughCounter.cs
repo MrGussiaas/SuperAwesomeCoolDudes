@@ -35,6 +35,10 @@ public class EnemyGatePassThroughCounter : MonoBehaviour
 
      private void OnTriggerExit2D(Collider2D col)
     {
+        if (!col.CompareTag(ENEMY))
+        {
+            return;
+        }
         if (col.CompareTag(ENEMY))
         {
             waveCount--;

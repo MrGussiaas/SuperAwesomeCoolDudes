@@ -152,10 +152,21 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         StartCoroutine(DelayRoomLoad());
     }
 
+    public void UpdateLocation(Vector3 newPosition)
+    {
+        Vector3 offSetSpawnPoint = transform.position - newPosition;
+        transform.position = newPosition;
+        
+        foreach(EnemyServerSpawner spawner in GetAllSpawners())
+        {
+            spawner.transform.position = spawner.transform.position - offSetSpawnPoint;
+        }
+    }
+
     IEnumerator DelayRoomLoad()
     {
         yield return new WaitForSeconds(1f);
-        GameEvents.OnActivateRoom?.Invoke(1);
+        GameEvents.OnActivateRoom?.Invoke(1, Direction.NULL);
         GameEvents.OnRoomLoad?.Invoke();
         
     }
@@ -218,6 +229,21 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         if (enemySpawners.TryGetValue(spawnerId, out EnemyServerSpawner spawner))
         {
             spawner.RpcStartEnemyMove(enemy.gameObject.GetInstanceID(), distance); // or whatever your release logic is
+        }
+    }
+
+    public void StartEnemyMove(Enemy enemy, Vector2 direction, float distance)
+    {
+        if (enemy == null)
+            return;
+
+        // Get the spawner ID from the enemy
+        int spawnerId = enemy.SpawnerId;
+
+        // Try to find the matching spawner in the dictionary
+        if (enemySpawners.TryGetValue(spawnerId, out EnemyServerSpawner spawner))
+        {
+            spawner.RpcStartEnemyMove(enemy.gameObject.GetInstanceID(), direction, distance); // or whatever your release logic is
         }
     }
 

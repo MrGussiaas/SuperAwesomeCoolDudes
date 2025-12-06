@@ -97,6 +97,7 @@ public class BasicEnemySlow : Enemy, IEnemy
         // Ensure we stay in 2D
         direction.z = 0f;
         direction.Normalize();
+        yield break;
 
         // Get current and target angles, correcting for "up" axis
         float startAngle = transform.eulerAngles.z;
@@ -136,17 +137,13 @@ public class BasicEnemySlow : Enemy, IEnemy
         interrupted = false;
         Vector3 start = rb.position;
         Vector3 directionToWaypoint = (initialWayPoint - start).normalized;
- 
-        EnemyServerSpawnerManager.Instance.StartRotation(this, directionToWaypoint);
-        yield return StartCoroutine(RotateTo(directionToWaypoint));
-        EnemyServerSpawnerManager.Instance.FinishRotation(this, directionToWaypoint);
-        yield return new WaitForFixedUpdate();
+
         if (interrupted) yield break;
         
         
         float initialDistance = Vector3.Distance(start, initialWayPoint);
-        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, initialDistance);
-        yield return StartCoroutine(MoveForward(initialDistance));
+        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, directionToWaypoint, initialDistance);
+        yield return StartCoroutine(MoveForward(directionToWaypoint, initialDistance));
 
         EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position);
         yield return new WaitForFixedUpdate();
@@ -171,17 +168,13 @@ public class BasicEnemySlow : Enemy, IEnemy
             // 1. Rotate toward nearest player
             Vector3 direction = GetRotationDirectionToNearestPlayer();
             direction = GetSlightlyOffsetDirection(direction);
-            EnemyServerSpawnerManager.Instance.StartRotation(this, direction);
-            yield return StartCoroutine(RotateTo(direction));
-            EnemyServerSpawnerManager.Instance.FinishRotation(this, direction);
-            yield return new WaitForFixedUpdate();
             // 2. Move forward (in "up" direction) a few units
             Vector3 start = rb.position;
             Vector3 worldUp = transform.up.normalized;
             Vector3 end = start + worldUp * moveDistance;
-            EnemyServerSpawnerManager.Instance.StartEnemyMove(this, moveDistance);
+            EnemyServerSpawnerManager.Instance.StartEnemyMove(this, direction, moveDistance);
 
-            yield return StartCoroutine(MoveForward(moveDistance));
+            yield return StartCoroutine(MoveForward(direction, moveDistance));
             EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position);
             yield return new WaitForFixedUpdate();
 
@@ -199,14 +192,14 @@ public class BasicEnemySlow : Enemy, IEnemy
         return Quaternion.Euler(0, 0, offset) * originalDir;
     }
     
-    private IEnumerator MoveForward(float distance)
+    private IEnumerator MoveForward(Vector2 direction, float distance)
     {
-        Vector3 start = rb.position;
+        Vector2 start = rb.position;
 
-        // Use world-space up direction normalized
-        Vector3 worldUp = transform.up.normalized;
+        // Normalized direction provided by server AI logic
+        Vector2 dirNorm = direction.normalized;
 
-        Vector3 end = start + worldUp * distance;
+        Vector2 end = start + dirNorm * distance;
 
         float travelTime = distance / moveSpeed;
         float elapsed = 0f;
@@ -216,12 +209,14 @@ public class BasicEnemySlow : Enemy, IEnemy
             if (interrupted)
             {
                 Debug.Log("interrupted enemy movement ending at: " + end);
-                //EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, end);
                 yield break;
-            } 
+            }
+
             float t = elapsed / travelTime;
-            Vector3 newPos = Vector3.Lerp(start, end, t);
+            Vector2 newPos = Vector2.Lerp(start, end, t);
+
             rb.MovePosition(newPos);
+
             elapsed += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
