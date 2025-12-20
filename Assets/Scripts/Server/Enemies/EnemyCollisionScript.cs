@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using Mirror.Examples.Billiards;
 using UnityEngine;
 
-public class EnemyCollisionScript : MonoBehaviour
+public class EnemyCollisionScript : NetworkBehaviour
 {
 
     private const string WALL = "Wall";
@@ -12,7 +13,7 @@ public class EnemyCollisionScript : MonoBehaviour
 
     private Rigidbody2D rb;
 
-    private Vector3 correction = Vector3.zero;
+    private Vector2 correction = Vector3.zero;
 
     private IEnemy iEnemy;
 
@@ -34,53 +35,37 @@ public class EnemyCollisionScript : MonoBehaviour
         halfHeight = boxCollider.size.y / 2;
     }
 
+    [ServerCallback]
     private void FixedUpdate()
     {
-        if (!needsCorrection)
-        {
-            return;
-        }
-        rb.MovePosition(correction);
-        if(iEnemy != null)
-        {
-            iEnemy.DoWallBump(correction);
-        }
+        if (!needsCorrection) return;
+
+        rb.MovePosition(rb.position + correction);
+
+        if (iEnemy != null)
+            iEnemy.DoWallBump(rb.position);
+
         needsCorrection = false;
+        correction = Vector3.zero;
         
     }
 
-    private void OnTriggerEnter2D(Collider2D wall)
+    [ServerCallback]
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!wall.CompareTag(WALL)) return;
-
-        Bounds wallBounds = wall.bounds;
-        Vector2 pos = transform.position;
-
-        float dx = pos.x - wallBounds.center.x;
-        float px = (wallBounds.extents.x + halfWidth) - Mathf.Abs(dx);
-
-        float dy = pos.y - wallBounds.center.y;
-        float py = (wallBounds.extents.y + halfHeight) - Mathf.Abs(dy);
-
-        Vector2 normal = Vector2.zero;
-        Vector2 correctedPos = pos;
-
-        if (px < py)
+        if (!collision.collider.CompareTag("Wall")) return;
+        Debug.Log("Tank bumped into: " + collision.collider.tag);
+        // Take the average normal of contacts
+        Vector2 avgNormal = Vector2.zero;
+        foreach (var c in collision.contacts)
+            avgNormal += c.normal;
+        avgNormal.Normalize();
+        if(avgNormal == Vector2.zero)
         {
-            // resolving along X axis
-            normal = (dx > 0) ? Vector2.right : Vector2.left;
-            correctedPos.x += normal.x * px;
+            return;
         }
-        else
-        {
-            // resolving along Y axis
-            normal = (dy > 0) ? Vector2.up : Vector2.down;
-            correctedPos.y += normal.y * py;
-        }
-
-        // Apply skin offset using YOUR method:
-        correctedPos += normal * skin;
-        correction = correctedPos;
+        correction = avgNormal * skin;
         needsCorrection = true;
     }
+    
 }

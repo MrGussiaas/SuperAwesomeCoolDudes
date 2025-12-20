@@ -39,6 +39,11 @@ public class WaveOrchestrator : MonoBehaviour
 
     private void DoInitialSpawn()
     {
+        if(enemyWaves.Count == 0)
+        {
+            roomController.RoomCleared();
+            return;
+        }
         EnemyWave firstWave = enemyWaves[currentWave];
         currentEnemyWaveCount = firstWave.GetWaveTotal();
         for(int i = 0, n = firstWave.WaveSlots.Count; i < n; i++)

@@ -1,20 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using Mirror.Examples.Billiards;
 using UnityEngine;
 
-public class PlayerCollisions : MonoBehaviour
+public class PlayerCollisions : NetworkBehaviour
 {
 
     private const string WALL = "Wall";
 
     private const string POWER_UP = "PowerUp";
 
+    private const string ENEMY = "Enemy";
+
+    private const string ENEMY_BULLET = "EnemyBullet";
+
     private BoxCollider2D boxCollider;
 
     private Rigidbody2D rb;
 
-    private Vector3 correction = Vector3.zero;
+    private Vector2 correction = Vector3.zero;
 
     private bool needsCorrection = false;
 
@@ -35,19 +40,33 @@ public class PlayerCollisions : MonoBehaviour
         abilityPickup = GetComponent<AbilityPickup>();
     }
 
+    [ServerCallback]
     private void FixedUpdate()
     {
         if (!needsCorrection)
         {
             return;
         }
-        rb.MovePosition(correction);
+        rb.MovePosition(rb.position + correction);
         needsCorrection = false;
+        correction = Vector3.zero;
+
+        rb.MovePosition(rb.position + correction);
         
     }
 
+    private void KillPlayer()
+    {
+        RoomController.ActiveRoom.RespawnPlayer(this.gameObject);
+        //this.gameObject.SetActive(false);
+        Debug.Log("Player killed");
+    }
+    
+
+    [ServerCallback]
     private void OnTriggerEnter2D(Collider2D wall)
     {
+        Debug.Log("Player triggered: " + wall.tag);
         if (wall.CompareTag(POWER_UP))
         {
             PowerUp powerUp = wall.GetComponent<PowerUp>();
@@ -57,36 +76,29 @@ public class PlayerCollisions : MonoBehaviour
             
 
         }
-        if (!wall.CompareTag(WALL)) return;
-
-        Bounds wallBounds = wall.bounds;
-        Vector2 pos = transform.position;
-
-        float dx = pos.x - wallBounds.center.x;
-        float px = (wallBounds.extents.x + halfWidth) - Mathf.Abs(dx);
-
-        float dy = pos.y - wallBounds.center.y;
-        float py = (wallBounds.extents.y + halfHeight) - Mathf.Abs(dy);
-
-        Vector2 normal = Vector2.zero;
-        Vector2 correctedPos = pos;
-
-        if (px < py)
+        if (wall.CompareTag(ENEMY) || wall.CompareTag(ENEMY_BULLET))
         {
-            // resolving along X axis
-            normal = (dx > 0) ? Vector2.right : Vector2.left;
-            correctedPos.x += normal.x * px;
-        }
-        else
-        {
-            // resolving along Y axis
-            normal = (dy > 0) ? Vector2.up : Vector2.down;
-            correctedPos.y += normal.y * py;
+            KillPlayer();
         }
 
-        // Apply skin offset using YOUR method:
-        correctedPos += normal * skin;
-        correction = correctedPos;
+    }
+
+    [ServerCallback]
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log("Player collided with: " + collision.collider.tag);
+        if (!collision.collider.CompareTag("Wall")) return;
+        // Take the average normal of contacts
+        Vector2 avgNormal = Vector2.zero;
+        foreach (var c in collision.contacts)
+            avgNormal += c.normal;
+        avgNormal.Normalize();
+        if(avgNormal == Vector2.zero)
+        {
+            return;
+        }
+        correction = avgNormal * skin;
         needsCorrection = true;
     }
+
 }

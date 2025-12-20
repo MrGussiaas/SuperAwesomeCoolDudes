@@ -20,36 +20,42 @@ public class Shoot : NetworkBehaviour
         abilityPickup = GetComponentInParent<AbilityPickup>();
     }
 
+    public Vector3 GetAimDirection()
+    {
+        Vector3 mousePos3D = (Vector3)inputHandler.MouseWorldPosition;
+        return (mousePos3D - transform.position).normalized; 
+    }
+
     void Update()
     {
         if (!isLocalPlayer) return; // Only handle input for the local player
         timeSinceLastShot += Time.deltaTime;
-        if (inputHandler.ShootHeld)
+        if (inputHandler.ShootHeld && timeSinceLastShot >= .1f)
         {
             Debug.Log("Shooting with the following ability: " + abilityPickup.SpreadShotAmmo);
-            Vector3 mousePos3D = (Vector3)inputHandler.MouseWorldPosition;
-            Vector3 shootDir = (mousePos3D - transform.position).normalized;
-            
+            Vector3 shootDir = GetAimDirection();
             if(abilityPickup.SpreadShotAmmo > 0)
             {
-                CmdShoot(transform.position, Rotate2D(shootDir, 15), BulletType.Basic);
-                CmdShoot(transform.position, Rotate2D(shootDir, -15), BulletType.Basic);
-                CmdShoot(transform.position, shootDir, BulletType.Basic);
-                abilityPickup.ShootSpreadShot();
+                CmdShoot(transform.position, Rotate2D(shootDir, 15), BulletType.Basic, AbilitiesEnum.SPREAD_SHOT);
+                CmdShoot(transform.position, Rotate2D(shootDir, -15), BulletType.Basic, AbilitiesEnum.NA);
+                CmdShoot(transform.position, shootDir, BulletType.Basic, AbilitiesEnum.NA);
+                //abilityPickup.ShootSpreadShot();
 
             }
             else if(abilityPickup.RocketAmmo > 0)
             {
-                abilityPickup.ShootRocket();
-                CmdShoot(transform.position, shootDir, BulletType.Rocket);
+                //abilityPickup.ShootRocket();
+                CmdShoot(transform.position, shootDir, BulletType.Rocket, AbilitiesEnum.ROCKET_SHOT);
             }
             else
             {
-                CmdShoot(transform.position, shootDir, BulletType.Basic);
+                CmdShoot(transform.position, shootDir, BulletType.Basic, AbilitiesEnum.NA);
             }
             timeSinceLastShot = 0;
         }
     }
+
+
 
     private Vector3 Rotate2D(Vector3 v, float degrees)
     {
@@ -58,8 +64,16 @@ public class Shoot : NetworkBehaviour
     
 
     [Command]
-    void CmdShoot(Vector3 position, Vector3 direction, BulletType bulletType)
+    void CmdShoot(Vector3 position, Vector3 direction, BulletType bulletType, AbilitiesEnum abilityType)
     {
+        if(abilityType == AbilitiesEnum.ROCKET_SHOT)
+        {
+            abilityPickup.ShootRocket();
+        }
+        if(abilityType == AbilitiesEnum.SPREAD_SHOT)
+        {
+            abilityPickup.ShootSpreadShot();
+        }
         BulletServerManager.Instance.SpawnBulletOnServer(position, direction, bulletType);
     }
 

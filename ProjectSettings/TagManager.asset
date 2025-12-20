@@ -11,6 +11,7 @@ TagManager:
   - Enemy
   - PowerUp
   - RoomExit
+  - EnemyBullet
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - Water
   - UI
   - Enemy
-  - 
+  - Player
   - 
   - 
   - 

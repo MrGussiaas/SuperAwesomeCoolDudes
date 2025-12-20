@@ -37,7 +37,7 @@ public class PowerUpServerSpawner : NetworkBehaviour
         Instance = this;
         foreach(GameObject gameObject in spawnablePowerUps)
         {
-            GameObject powerUpPrefabInstance = Instantiate(gameObject, transform);
+            GameObject powerUpPrefabInstance = Instantiate(gameObject);
             PowerUp powerUp = powerUpPrefabInstance.GetComponent<PowerUp>();
             
             Debug.Log("Deactivating the gameObject in InitVars");
@@ -65,6 +65,8 @@ public class PowerUpServerSpawner : NetworkBehaviour
     public override void OnStartServer()
     {
         base.OnStartServer();
+        GameEvents.OnActivateRoom += StartSpawnerTimer;
+        GameEvents.PowerUpRemovedFromRoom += DeSpawnPowerUp;
         InitVars();
     }
 
@@ -138,21 +140,22 @@ public class PowerUpServerSpawner : NetworkBehaviour
 
     private void StartSpawnerTimer(int roomId, Direction direction)
     {
+        if (!isServer)
+        {
+            return;
+        }
         if(spawnerLoop != null)
         {
             StopCoroutine(spawnerLoop);
             spawnerLoop = null;
-        }        
+        } 
+               
         spawnerLoop = StartCoroutine(PowerUpSpawnLoop());
     }
 
-    public void OnEnable()
-    {
-        GameEvents.OnActivateRoom += StartSpawnerTimer;
-        GameEvents.PowerUpRemovedFromRoom += DeSpawnPowerUp;
-    }
 
-    public void OnDisable()
+
+    public override void OnStopServer()
     {
         GameEvents.OnActivateRoom -= StartSpawnerTimer;
         GameEvents.PowerUpRemovedFromRoom -= DeSpawnPowerUp;

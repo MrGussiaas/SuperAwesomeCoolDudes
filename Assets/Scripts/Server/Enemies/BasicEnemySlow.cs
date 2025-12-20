@@ -52,13 +52,6 @@ public class BasicEnemySlow : Enemy, IEnemy
         }
     }
 
-    void Update()
-    {
-        //Vector3 rotateTo = base.GetRotationDirectionToNearestPlayer();
-        //transform.up = rotateTo;
-
-    }
-
     public override void Initialize(Vector2 direction)
     {
         base.Initialize(direction);

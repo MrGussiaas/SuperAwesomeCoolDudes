@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class AbilityPickup : NetworkBehaviour
 {
+    [SyncVar]
     private int spreadShotAmmo;
 
+    [SyncVar]
     private int rocketAmmo;
 
     [SerializeField]
@@ -24,6 +26,7 @@ public class AbilityPickup : NetworkBehaviour
 
     public int RocketAmmo {get {return rocketAmmo;}}
 
+    [Server]
     public void DoPickeup(AbilitiesEnum powerUp, int ammoAmount)
     {
         switch (powerUp){
@@ -38,6 +41,8 @@ public class AbilityPickup : NetworkBehaviour
                 break;
         }
     }
+
+
 
     public void Awake()
     {
@@ -84,6 +89,7 @@ public class AbilityPickup : NetworkBehaviour
 
     }
 
+    
     public void ShootSpreadShot()
     {
         spreadShotAmmo--;

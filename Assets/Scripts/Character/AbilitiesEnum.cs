@@ -7,5 +7,7 @@ public enum AbilitiesEnum
     SPREAD_SHOT,
     ROCKET_SHOT,
 
-    SAW_BLADE
+    SAW_BLADE,
+
+    NA
 }

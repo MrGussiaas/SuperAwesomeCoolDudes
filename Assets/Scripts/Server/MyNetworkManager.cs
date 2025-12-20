@@ -36,6 +36,10 @@ public class MyNetworkManager : NetworkManager
         {
             enemy.OnPlayerConnected();
         }
+        GameObject newPlayer = conn.identity.gameObject;
+
+        // Late join sync
+        RoomController.ActiveRoom?.SyncLateJoinPlayer(newPlayer);
     }
     
     public override void OnStopClient()

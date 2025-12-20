@@ -321,7 +321,7 @@ GameObject:
   - component: {fileID: 4809255711275901266}
   - component: {fileID: 4717966586033536399}
   - component: {fileID: 6585461775335111768}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyCrossTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -670,7 +670,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1354964144077624605}
   - component: {fileID: 3792275795017026021}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SouthBulletDestroyer
   m_TagString: BulletBarrier
   m_Icon: {fileID: 0}
@@ -1037,7 +1037,7 @@ GameObject:
   - component: {fileID: 2322738619576937676}
   - component: {fileID: 6449244475615804489}
   - component: {fileID: 1618278084199795161}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyCrossTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1256,7 +1256,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8247900109588567119}
   - component: {fileID: 488501406170436813}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EastBulletDestroyer
   m_TagString: BulletBarrier
   m_Icon: {fileID: 0}
@@ -1334,7 +1334,7 @@ GameObject:
   - component: {fileID: 7045814706536935708}
   - component: {fileID: 8544628421920040722}
   - component: {fileID: 2107995325531245489}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyCrossTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1529,7 +1529,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -1557,8 +1557,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a285b1f9102193429c9a8625ccce211, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   exitDirection: 0
   nextRoomNumber: 0
+  playerEntranceSpawn: {x: 0, y: 0.49, z: 0}
+  playerEntranceWayPoint: {x: 0, y: -0.8, z: 0}
 --- !u!1 &3307893397954744259
 GameObject:
   m_ObjectHideFlags: 0
@@ -1675,7 +1680,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -1703,8 +1708,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a285b1f9102193429c9a8625ccce211, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   exitDirection: 3
   nextRoomNumber: 0
+  playerEntranceSpawn: {x: -0.5, y: 0, z: 0}
+  playerEntranceWayPoint: {x: 1.23, y: 0, z: 0}
 --- !u!1 &3409642486158103249
 GameObject:
   m_ObjectHideFlags: 0
@@ -1821,7 +1831,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -1849,8 +1859,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a285b1f9102193429c9a8625ccce211, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   exitDirection: 1
   nextRoomNumber: 0
+  playerEntranceSpawn: {x: 0.49, y: 0, z: 0}
+  playerEntranceWayPoint: {x: -1.01, y: 0, z: 0}
 --- !u!1 &3716217007681531903
 GameObject:
   m_ObjectHideFlags: 0
@@ -2121,7 +2136,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6567614565075956294}
   - component: {fileID: 74499881915372124}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: NorthBulletDestroyer
   m_TagString: BulletBarrier
   m_Icon: {fileID: 0}
@@ -2329,7 +2344,7 @@ GameObject:
   - component: {fileID: 5452471230260359400}
   - component: {fileID: 4111569140503251326}
   - component: {fileID: 8796131959652740915}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyCrossTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2582,7 +2597,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4404073953460152092}
   - component: {fileID: 6669991820208532580}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: WestBulletDestroyer
   m_TagString: BulletBarrier
   m_Icon: {fileID: 0}
@@ -3429,7 +3444,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -3457,5 +3472,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a285b1f9102193429c9a8625ccce211, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   exitDirection: 2
   nextRoomNumber: 0
+  playerEntranceSpawn: {x: 0, y: -0.58, z: 0}
+  playerEntranceWayPoint: {x: 0, y: 0.48, z: 0}

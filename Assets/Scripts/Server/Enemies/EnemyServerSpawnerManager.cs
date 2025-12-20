@@ -154,20 +154,21 @@ public class EnemyServerSpawnerManager : MonoBehaviour
 
     public void UpdateLocation(Vector3 newPosition)
     {
-        Vector3 offSetSpawnPoint = transform.position - newPosition;
+        Vector3 offSetSpawnPoint = transform.position + newPosition;
         transform.position = newPosition;
         
         foreach(EnemyServerSpawner spawner in GetAllSpawners())
         {
-            spawner.transform.position = spawner.transform.position - offSetSpawnPoint;
+            spawner.transform.position = spawner.transform.position + offSetSpawnPoint;
+            spawner.InitialWayPoint = spawner.InitialWayPoint + offSetSpawnPoint;
         }
     }
 
     IEnumerator DelayRoomLoad()
     {
         yield return new WaitForSeconds(1f);
-        GameEvents.OnActivateRoom?.Invoke(1, Direction.NULL);
-        GameEvents.OnRoomLoad?.Invoke();
+        GameEvents.OnActivateRoom?.Invoke(1, Direction.West);
+        //GameEvents.OnRoomLoad?.Invoke();
         
     }
 
