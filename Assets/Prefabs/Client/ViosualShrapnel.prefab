@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8938917936299806213}
   - component: {fileID: -7140212015849189759}
   - component: {fileID: 4492266690671687391}
+  - component: {fileID: 4258199293261710873}
   m_Layer: 0
   m_Name: ViosualShrapnel
   m_TagString: Untagged
@@ -74,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 51562cf52311cc94e996d6d8226b4f02, type: 3}
+  m_Sprite: {fileID: 476269918, guid: 10222e29afd00a344952335179808838, type: 3}
   m_Color: {r: 0.06666665, g: 0.9607843, b: 0.21389268, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -99,3 +100,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletType: 1
   speed: 1.5
+--- !u!95 &4258199293261710873
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7882793586470987707}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9a7acced36c8b5341bf50596a5180b40, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

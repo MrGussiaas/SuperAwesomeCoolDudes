@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: EastGateOpenController
+  m_Controller: {fileID: 9100000, guid: 072c301636b1159479d1924229c9889b, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: f968ec70772f2f049be557d73d5a7961, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 3152d223bb4a16b4796f82db524e223f, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 21548277354561740909eab0c2a0716c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 65e63b6f65dcdcd409a307d497bf5e4b, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 393ed890e03c2a04389e9325b7e4060f, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 245527290b540c640a9ed0bacdeb19b3, type: 2}

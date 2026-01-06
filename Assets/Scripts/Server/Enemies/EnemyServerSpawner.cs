@@ -163,7 +163,6 @@ public class EnemyServerSpawner : NetworkBehaviour
             VisualEnemyManager.Instance.GetEnemyById(bulletId).gameObject.SetActive(true);
         }
 
-         Debug.Log("RPC visual spawn. Manager null? " + (VisualEnemyManager.Instance == null));
         VisualEnemy vb = VisualEnemyManager.Instance.GetPooledEnemy(enemyType);
 
         // Position and orient it
@@ -180,7 +179,6 @@ public class EnemyServerSpawner : NetworkBehaviour
     [Server]
     public void SpawnEnemyOnServer(int spawnerId, Vector3 position, Vector2 direction)
     {
-        Debug.Log("SpawnEnemyOnServer time");
         activeEnemyCount++;
         Enemy enemy = GetEnemy(); // from pool
 

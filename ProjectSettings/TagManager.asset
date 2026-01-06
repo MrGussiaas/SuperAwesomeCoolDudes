@@ -21,7 +21,7 @@ TagManager:
   - UI
   - Enemy
   - Player
-  - 
+  - NonCollision
   - 
   - 
   - 
@@ -48,4 +48,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: masks
+    uniqueID: 1400133217
     locked: 0

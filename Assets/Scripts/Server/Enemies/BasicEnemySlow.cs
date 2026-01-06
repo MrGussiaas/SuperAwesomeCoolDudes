@@ -8,6 +8,10 @@ public class BasicEnemySlow : Enemy, IEnemy
 {
     int health = 1;
 
+    private const string NON_COLLISION_LAYER = "NonCollision";
+
+    private const string ENEMY_LAYER = "Enemy";
+
     private Rigidbody2D rb;
 
     private bool active = false;
@@ -125,6 +129,7 @@ public class BasicEnemySlow : Enemy, IEnemy
     
     private IEnumerator InitialWayPointRoutine()
     {
+        gameObject.layer = LayerMask.NameToLayer(NON_COLLISION_LAYER);
         yield return null;
         duringInitial = true;
         interrupted = false;
@@ -146,8 +151,7 @@ public class BasicEnemySlow : Enemy, IEnemy
         }
         loopRoutine = StartCoroutine(EnemyLoop());
         duringInitial = false;
-
-
+        gameObject.layer = LayerMask.NameToLayer(ENEMY_LAYER);
     }
 
     private IEnumerator EnemyLoop()

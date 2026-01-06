@@ -52,7 +52,6 @@ public class EnemyGatePassThroughCounter : MonoBehaviour
 
     public void UpdateEnemyCount(Direction dir, int count)
     {
-        Debug.Log("increasng the " + direction + " spawner by " + count);
         if(dir == direction)
         {
             waveCount += count;

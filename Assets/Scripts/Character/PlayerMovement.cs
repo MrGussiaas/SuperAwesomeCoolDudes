@@ -56,7 +56,6 @@ public class PlayerMovement : NetworkBehaviour
 
     public void EnableMovememnt(bool enableMovemment)
     {
-        Debug.Log("enabling movement to: " + enableMovemment);
         movementEnabled = enableMovemment;
         gunAim.enabled = enableMovemment;
     }

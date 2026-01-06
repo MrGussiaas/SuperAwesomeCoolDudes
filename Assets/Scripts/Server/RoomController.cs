@@ -62,7 +62,9 @@ public class RoomController : NetworkBehaviour
     public void RespawnPlayer(GameObject player)
     {
         PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
+        PlayerStates playerStates = player.GetComponent<PlayerStates>();
         playerMovement?.EnableMovememnt(false);
+        playerStates.IsInvincible = true;
         StartCoroutine(LerpPlayersToStart(new GameObject[]{player}, Direction.West));
     }
 
@@ -138,7 +140,6 @@ public class RoomController : NetworkBehaviour
         Vector3 wayPointPosition = getEntranceFinishForPlayer(directionEnteringFrom);
         spawnPlayersTo(players, teleportPosition);
         TriggerEntranceAnimation(directionEnteringFrom, players);
-        Debug.Log("Lerping late player to: " + wayPointPosition);
         yield return StartCoroutine(LerpPlayersTo(wayPointPosition, players));
         spawnPlayersTo(players, wayPointPosition);
         HandleGateClose(directionEnteringFrom);
@@ -151,7 +152,6 @@ public class RoomController : NetworkBehaviour
     private IEnumerator DoRoomTransition(Direction directionEnteringFrom)
     {
        // Direction realDirection = InvertDirection(directionEnteringFrom);
-        Debug.Log("Do Room transition started  " + directionEnteringFrom);
         isTransitioning = true;
         EnemyServerSpawnerManager.Instance.UpdateLocation(transform.position);
         PowerUpServerSpawner.Instance.UpdateLocation(transform.position);
@@ -221,7 +221,6 @@ public class RoomController : NetworkBehaviour
 
     private void DisablePlayerControls(bool enable, GameObject[] players)
     {
-        Debug.Log("Disabling player controls haha!");
         foreach(GameObject player in players)
         {
             PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
@@ -277,7 +276,6 @@ public class RoomController : NetworkBehaviour
 
     private void SetGateStatus(bool status, Direction directionToLeaveOpen)
     {
-        Debug.Log("Setting gate statuses but shoule leave open: " + directionToLeaveOpen);
         foreach (var kvp in gateHandlers)
         {
             GateHandler gate = kvp.Value;
@@ -288,7 +286,6 @@ public class RoomController : NetworkBehaviour
 
     private void OnActiveRoomChanged(bool oldValue, bool newValue)
     {
-        Debug.Log("UH OH!!!!!!!!");
         SetGateStatus(newValue, Direction.NULL);
     }
 
@@ -340,7 +337,7 @@ public class RoomController : NetworkBehaviour
         {
             if (roomExits[i].ExitDirection == direction)
             {
-                return roomExits[i].transform.TransformPoint(roomExits[i].PlayerEntranceWayPoint);
+                return roomExits[i].PlayerEntranceWayPoint;
             }
         }   
         return Vector3.zero;

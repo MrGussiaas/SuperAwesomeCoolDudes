@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: NorthGateController
+  m_Controller: {fileID: 9100000, guid: 072c301636b1159479d1924229c9889b, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 21548277354561740909eab0c2a0716c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 9f3e67b6002aca44ab28e2d2a5822364, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 393ed890e03c2a04389e9325b7e4060f, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: cda92ad95bd2005438fa48097885b6c5, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: f968ec70772f2f049be557d73d5a7961, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: a49e9f04f737c864190a10a70db69ce9, type: 2}

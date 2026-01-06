@@ -70,7 +70,6 @@ public class VisualEnemyManager : MonoBehaviour
     public void DestroyVisualEnemy(int netId)
     {
         if(activeVisuals.TryGetValue(netId, out var vb)){
-            Debug.Log("releasing enemy of type: " + vb.GetEnemyType);
             DestroyVisualEnemy(vb.GetEnemyType,  netId);
             
         }

@@ -60,7 +60,6 @@ public class MyNetworkManager : NetworkManager
 
         // Only the client side should request sync from the server.
         // A Host has BOTH server and client active, so we must guard this:
-        Debug.Log("OnStartClient: Is server active? " + NetworkServer.active);
 
     }
 

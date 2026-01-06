@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SouthGateController
+  m_Controller: {fileID: 9100000, guid: 072c301636b1159479d1924229c9889b, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 21548277354561740909eab0c2a0716c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 480404ab173859940b4e1ec6d1c02490, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 393ed890e03c2a04389e9325b7e4060f, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 3c0a4e00272a8c84a834151e48a00b9a, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: f968ec70772f2f049be557d73d5a7961, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: b61131511a4df1d46a68df53e4f2210c, type: 2}

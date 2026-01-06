@@ -1,6 +1,8 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 
 public class ShrapnelEnemy : Enemy, IEnemy
 {
@@ -66,14 +68,14 @@ public class ShrapnelEnemy : Enemy, IEnemy
         initialWayPointRoutine = StartCoroutine(InitialWayPointRoutine());
     }
 
-    private IEnumerator MoveForward(float distance)
+    private IEnumerator MoveForward(float distance, Vector2 direction)
     {
-        Vector3 start = rb.position;
+        Vector2 start = rb.position;
 
-        // Use world-space up direction normalized
-        Vector3 worldUp = transform.up.normalized;
+        // Normalized direction provided by server AI logic
+        Vector2 dirNorm = direction.normalized;
 
-        Vector3 end = start + worldUp * distance;
+        Vector2 end = start + dirNorm * distance;
 
         float travelTime = distance / moveSpeed;
         float elapsed = 0f;
@@ -131,6 +133,24 @@ public class ShrapnelEnemy : Enemy, IEnemy
         yield return new WaitForFixedUpdate();
     }
 
+    private Vector2 SnapToCardinal(Vector2 v)
+    {
+        if (Mathf.Abs(v.x) > Mathf.Abs(v.y))
+            return new Vector2(Mathf.Sign(v.x), 0f);
+        else
+            return new Vector2(0f, Mathf.Sign(v.y));
+    }
+
+    private Vector2 SelectRandomAfterWayPointDirection(Vector2 wayPointDirection)
+    {
+        int flag = Random.Range(0,2);
+        if(wayPointDirection.y != 0)
+        {
+            return flag == 0 ? Vector2.left : Vector2. right;
+        }
+        return flag == 0 ? Vector2.down : Vector2.up;
+    }
+
     private IEnumerator InitialWayPointRoutine()
     {
         yield return null;
@@ -138,17 +158,14 @@ public class ShrapnelEnemy : Enemy, IEnemy
         interrupted = false;
         Vector3 start = rb.position;
         Vector3 directionToWaypoint = (initialWayPoint - start).normalized;
- 
-        EnemyServerSpawnerManager.Instance.StartRotation(this, directionToWaypoint);
-        yield return StartCoroutine(RotateTo(directionToWaypoint));
-        EnemyServerSpawnerManager.Instance.FinishRotation(this, directionToWaypoint);
+
         yield return new WaitForFixedUpdate();
         if (interrupted) yield break;
         
         
         float initialDistance = Vector3.Distance(start, initialWayPoint);
-        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, initialDistance);
-        yield return StartCoroutine(MoveForward(initialDistance));
+        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, directionToWaypoint, initialDistance);
+        yield return StartCoroutine(MoveForward(initialDistance, directionToWaypoint));
 
         EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position);
         yield return new WaitForFixedUpdate();
@@ -157,35 +174,18 @@ public class ShrapnelEnemy : Enemy, IEnemy
             StopCoroutine(loopRoutine);
         }
         Vector3 fwd = transform.up;
-        Vector3 closestDir = Vector3.up;
-        float maxDot = -Mathf.Infinity;
+        Vector3 closestDir = SnapToCardinal(directionToWaypoint);
 
-        foreach (var dir in cardinalDirs)
-        {
-            float d = Vector3.Dot(fwd, dir);
-            if (d > maxDot)
-            {
-                maxDot = d;
-                closestDir = dir;
-            }
-        }
+        Debug.Log("randomlySelectedNextPosition " + closestDir);
 
-        EnemyServerSpawnerManager.Instance.StartRotation(this, closestDir);
-        yield return StartCoroutine(RotateTo(closestDir));
-        EnemyServerSpawnerManager.Instance.FinishRotation(this, closestDir);
-
-        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, .25f);
-        yield return StartCoroutine(MoveForward(.25f));
+        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, closestDir, .25f);
+        yield return StartCoroutine(MoveForward(.25f, closestDir));
         EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position);
 
-        int turn = Random.value < 0.5f ? -90 : 90;   // randomly choose +90 or -90 degrees
-        Vector3 newDir = Quaternion.Euler(0, 0, turn) * closestDir;
-        EnemyServerSpawnerManager.Instance.StartRotation(this, newDir);
-        yield return StartCoroutine(RotateTo(newDir));
-        EnemyServerSpawnerManager.Instance.FinishRotation(this, newDir);
+        Vector2 turnDirection = SelectRandomAfterWayPointDirection(SnapToCardinal(directionToWaypoint));
 
-        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, 1.25f);
-        yield return StartCoroutine(MoveForward(1.25f));
+        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, turnDirection, 1.25f);
+        yield return StartCoroutine(MoveForward(1.25f, turnDirection));
         EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position);
 
         BulletServerManager.Instance.SpawnShrapnelOnServer(this.transform.position);

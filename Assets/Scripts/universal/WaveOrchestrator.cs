@@ -57,8 +57,6 @@ public class WaveOrchestrator : MonoBehaviour
     private void DoEnemyEliminated()
     {
         currentEnemyWaveCount--;
-        Debug.Log("currentEnemyWaveCount: " + currentEnemyWaveCount);
-        Debug.Log("enemyWaveCount:  " + currentEnemyWaveCount);
         if(currentEnemyWaveCount <= 0)
         {
             currentWave ++;

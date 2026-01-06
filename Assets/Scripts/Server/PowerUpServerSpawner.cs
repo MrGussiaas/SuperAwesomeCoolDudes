@@ -40,7 +40,6 @@ public class PowerUpServerSpawner : NetworkBehaviour
             GameObject powerUpPrefabInstance = Instantiate(gameObject);
             PowerUp powerUp = powerUpPrefabInstance.GetComponent<PowerUp>();
             
-            Debug.Log("Deactivating the gameObject in InitVars");
            if( powerUpRegistry.TryGetValue(powerUp.PowerUpType, out var pu)){
                 
                 powerUp.gameObject.SetActive(false);
@@ -103,6 +102,7 @@ public class PowerUpServerSpawner : NetworkBehaviour
         Vector3 spawnPosition = GetRandomPointInRectangle();
         powerUp.transform.position = spawnPosition;
         powerUp.gameObject.SetActive(true);
+        powerUp.InitializePowerUP();
         NetworkServer.Spawn(powerUp.gameObject);
     }
 
@@ -114,6 +114,7 @@ public class PowerUpServerSpawner : NetworkBehaviour
                 {
                     return;
                 }
+                powerUp.CancelPowerUp();
                 powerUp.gameObject.SetActive(false);
                 q.Enqueue(powerUp);
                 NetworkServer.UnSpawn(powerUp.gameObject);

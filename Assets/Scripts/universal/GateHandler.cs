@@ -14,6 +14,11 @@ public class GateHandler : NetworkBehaviour
 
     private SpriteRenderer sr;
 
+    private Animator animator;
+
+    private const string OPEN_GATE = "OpenGate";
+    private const string CLOSE_GATE = "CloseGate";
+
     private void InitVars()
     {
         if(sr == null){
@@ -21,6 +26,10 @@ public class GateHandler : NetworkBehaviour
         }
         if(collider == null){
             collider = GetComponent<BoxCollider2D>();
+        }
+        if(animator == null)
+        {
+            animator = GetComponent<Animator>();
         }
     }
 
@@ -37,14 +46,26 @@ public class GateHandler : NetworkBehaviour
 
     public void OpenGate()
     {
-        sr.enabled = false;
+        if(sr != null){
+            sr.enabled = false;
+        }
+        if(animator != null)
+        {
+            animator.SetTrigger(OPEN_GATE);
+        }
         collider.enabled = false;
         
     }
 
     public void CloseGate()
     {
-        sr.enabled = true;
+        if(sr != null){
+            sr.enabled = true;
+        }
+        if(animator != null)
+        {
+            animator.SetTrigger(CLOSE_GATE);
+        }
         collider.enabled = true;
     }
 

@@ -86,7 +86,7 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         {
             int value = Random.Range(0, 4);
             int spawnerIndex = GetNextAvailableSpawner(usedSpawners, value);
-
+            
             int bit = 1 << spawnerIndex;
             usedSpawners |= bit;
             if(spawnerRegistry.TryGetValue(slot.enemyType, out var listOfSpawners)){
@@ -99,7 +99,6 @@ public class EnemyServerSpawnerManager : MonoBehaviour
             
 
         }
-        Debug.Log("The slot is of type: " + slot.enemyType + " of count: " + slot.enemyCount + " for spawner count: " + slot.spawnersToUse );
 
     }
 

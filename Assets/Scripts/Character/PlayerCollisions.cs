@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Mirror;
+using Mirror.Examples.Basic;
 using Mirror.Examples.Billiards;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ public class PlayerCollisions : NetworkBehaviour
 
     private Vector2 correction = Vector3.zero;
 
+    private PlayerStates playerStates;
+
     private bool needsCorrection = false;
 
     private float halfWidth;
@@ -34,10 +37,11 @@ public class PlayerCollisions : NetworkBehaviour
     private void Awake()
     {
         boxCollider = GetComponent<BoxCollider2D>();
-        rb = GetComponent<Rigidbody2D>();
+        rb = GetComponentInParent<Rigidbody2D>();
         halfWidth = boxCollider.size.x / 2;
         halfHeight = boxCollider.size.y / 2;
-        abilityPickup = GetComponent<AbilityPickup>();
+        abilityPickup = GetComponentInParent<AbilityPickup>();
+        playerStates = GetComponentInParent<PlayerStates>();
     }
 
     [ServerCallback]
@@ -57,26 +61,24 @@ public class PlayerCollisions : NetworkBehaviour
 
     private void KillPlayer()
     {
-        RoomController.ActiveRoom.RespawnPlayer(this.gameObject);
+        RoomController.ActiveRoom.RespawnPlayer(transform.root.gameObject);
         //this.gameObject.SetActive(false);
-        Debug.Log("Player killed");
+        
     }
     
 
     [ServerCallback]
     private void OnTriggerEnter2D(Collider2D wall)
     {
-        Debug.Log("Player triggered: " + wall.tag);
         if (wall.CompareTag(POWER_UP))
         {
             PowerUp powerUp = wall.GetComponent<PowerUp>();
-            Debug.Log("Do Power up logic pickup here: " + powerUp.PowerUpType);
             abilityPickup.DoPickeup(powerUp.PowerUpType, powerUp.IntitaliAmmoAmount);
             GameEvents.PowerUpRemovedFromRoom(powerUp);
             
 
         }
-        if (wall.CompareTag(ENEMY) || wall.CompareTag(ENEMY_BULLET))
+        if ( !playerStates.IsInvincible && wall.CompareTag(ENEMY) || wall.CompareTag(ENEMY_BULLET))
         {
             KillPlayer();
         }
@@ -86,7 +88,6 @@ public class PlayerCollisions : NetworkBehaviour
     [ServerCallback]
     void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Player collided with: " + collision.collider.tag);
         if (!collision.collider.CompareTag("Wall")) return;
         // Take the average normal of contacts
         Vector2 avgNormal = Vector2.zero;

@@ -14,11 +14,11 @@ public class ExitHandler : NetworkBehaviour
 
     [SerializeField]
     private Vector3 playerEntranceSpawn;
-    public Vector3 PlayerEntranceSpawn {get {return playerEntranceSpawn;}}
+    public Vector3 PlayerEntranceSpawn {get {return computeSpawnOffset(playerEntranceSpawn);}}
 
     [SerializeField]
     private Vector3 playerEntranceWayPoint;
-    public Vector3 PlayerEntranceWayPoint {get {return playerEntranceWayPoint;}}
+    public Vector3 PlayerEntranceWayPoint {get {return computeSpawnOffset(playerEntranceWayPoint);}}
 
     private const string PLAYER = "Player";
 
@@ -53,7 +53,6 @@ public class ExitHandler : NetworkBehaviour
                 }
 
         }
-        Debug.Log("Activating nextRoom: " + nextRoomNumber + " " + directionToLeaveOpen);
         GameEvents.OnActivateRoom(nextRoomNumber, directionToLeaveOpen);
     }
 

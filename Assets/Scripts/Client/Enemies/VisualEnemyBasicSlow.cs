@@ -29,20 +29,16 @@ public class VisualEnemyBasicSlow : VisualEnemy
 private string GetDirectionTrigger(Vector2 dir)
 {
     Vector2 normDir = dir.normalized;
-
-
     float angle = Mathf.Atan2(normDir.y, normDir.x) * Mathf.Rad2Deg;
-
     if (angle < 0) angle += 360f;
-
     if (angle >= 337.5f || angle < 22.5f) return EAST;
     if (angle >= 22.5f && angle < 67.5f) return NORTH_EAST;
     if (angle >= 67.5f && angle < 112.5f) return NORTH;
-    if (angle >= 112.5f && angle < 157.5f) return NORTH_EAST; // tweak if needed
+    if (angle >= 112.5f && angle < 157.5f) return NORTH_EAST;
+    if (angle >= 157.5f && angle < 247.5f) return EAST;
     if (angle >= 247.5f && angle < 292.5f) return SOUTH;
     if (angle >= 292.5f && angle < 337.5f) return SOUTH_EAST;
 
-    // fallback
     return SOUTH;
 }
 
@@ -62,7 +58,7 @@ private string GetDirectionTrigger(Vector2 dir)
         Vector3 startPosition = transform.position;
         Vector3 endPosition = startPosition + (Vector3)(direction.normalized * distance);
         sr.flipX = NeedsFlip(startPosition, endPosition);
-        anim.SetTrigger(trigger);
+        anim?.SetTrigger(trigger);
         base.MoveForward( direction,  distance);
     }
 }

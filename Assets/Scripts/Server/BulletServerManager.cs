@@ -102,7 +102,6 @@ public class BulletServerManager : NetworkBehaviour
 
     public void ReleaseBullet(Bullet bullet)
     {
-        Debug.Log("releasing bullet of type: " + bullet.GetBulletType);
         int instanceId = bullet.gameObject.GetInstanceID();
         DestroyBullet(bullet.GetBulletType, instanceId);
     }

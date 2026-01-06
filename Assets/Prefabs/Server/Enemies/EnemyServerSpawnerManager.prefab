@@ -45,4 +45,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnerPrefabs:
+  - {fileID: 7521542991204252329, guid: 84186ae617243cd45b8da567f252f6f9, type: 3}
+  - {fileID: 7521542991204252329, guid: 84186ae617243cd45b8da567f252f6f9, type: 3}
+  - {fileID: 7521542991204252329, guid: 84186ae617243cd45b8da567f252f6f9, type: 3}
+  - {fileID: 7521542991204252329, guid: 84186ae617243cd45b8da567f252f6f9, type: 3}
+  - {fileID: 7521542991204252329, guid: b577f64d211c58d4bb02733f652ebe7c, type: 3}
+  - {fileID: 7521542991204252329, guid: b577f64d211c58d4bb02733f652ebe7c, type: 3}
+  - {fileID: 7521542991204252329, guid: b577f64d211c58d4bb02733f652ebe7c, type: 3}
+  - {fileID: 7521542991204252329, guid: b577f64d211c58d4bb02733f652ebe7c, type: 3}
+  - {fileID: 7521542991204252329, guid: 3aeac128f4b32794e8280c70f698666f, type: 3}
+  - {fileID: 7521542991204252329, guid: 3aeac128f4b32794e8280c70f698666f, type: 3}
+  - {fileID: 7521542991204252329, guid: 3aeac128f4b32794e8280c70f698666f, type: 3}
+  - {fileID: 7521542991204252329, guid: 3aeac128f4b32794e8280c70f698666f, type: 3}
   - {fileID: 7521542991204252329, guid: 01b63b59e96e7f244bcd6c17b6bf6400, type: 3}
+  - {fileID: 7521542991204252329, guid: 01b63b59e96e7f244bcd6c17b6bf6400, type: 3}
+  - {fileID: 7521542991204252329, guid: 01b63b59e96e7f244bcd6c17b6bf6400, type: 3}
+  - {fileID: 7521542991204252329, guid: 01b63b59e96e7f244bcd6c17b6bf6400, type: 3}
+  northSpawnPos: {x: 0, y: 2.97, z: 0}
+  eastSpawnPos: {x: 4.3, y: 0, z: 0}
+  southSpawnPos: {x: 0, y: -2.62, z: 0}
+  westSpawnPos: {x: -4.15, y: 0, z: 0}
+  northWayPointOffset: {x: 0.15, y: -1.69, z: 0}
+  eastWayPointOffset: {x: -2.72, y: -0.04, z: 0}
+  southWayPointOffset: {x: 0, y: 1.41, z: 0}
+  westWayPointOffset: {x: 2.29, y: 0, z: 0}

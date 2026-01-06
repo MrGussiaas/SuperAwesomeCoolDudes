@@ -54,7 +54,6 @@ public class EnemyCollisionScript : NetworkBehaviour
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (!collision.collider.CompareTag("Wall")) return;
-        Debug.Log("Tank bumped into: " + collision.collider.tag);
         // Take the average normal of contacts
         Vector2 avgNormal = Vector2.zero;
         foreach (var c in collision.contacts)

@@ -32,7 +32,6 @@ public class Shoot : NetworkBehaviour
         timeSinceLastShot += Time.deltaTime;
         if (inputHandler.ShootHeld && timeSinceLastShot >= .1f)
         {
-            Debug.Log("Shooting with the following ability: " + abilityPickup.SpreadShotAmmo);
             Vector3 shootDir = GetAimDirection();
             if(abilityPickup.SpreadShotAmmo > 0)
             {
