@@ -12,6 +12,7 @@ TagManager:
   - PowerUp
   - RoomExit
   - EnemyBullet
+  - Collectible
   layers:
   - Default
   - TransparentFX
@@ -22,9 +23,9 @@ TagManager:
   - Enemy
   - Player
   - NonCollision
-  - 
-  - 
-  - 
+  - EnemyHitBox
+  - EnemyParent
+  - Walls
   - 
   - 
   - 

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Mirror;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class VisualEnemyBasicSlow : VisualEnemy
@@ -42,8 +43,9 @@ private string GetDirectionTrigger(Vector2 dir)
     return SOUTH;
 }
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         InitVars();
     }
 
@@ -61,4 +63,5 @@ private string GetDirectionTrigger(Vector2 dir)
         anim?.SetTrigger(trigger);
         base.MoveForward( direction,  distance);
     }
+
 }

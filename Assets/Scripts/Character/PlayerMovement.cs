@@ -7,15 +7,28 @@ public class PlayerMovement : NetworkBehaviour
 {
 
     private const string WALK_SOUTH = "WalkSouth";
+
+    private const string WALK_SOUTH_22 = "WalkSouth22";
+
+    
     private const string WALK_SOUTH_EAST = "WalkSouthEast";
+
+    private const string WALK_SOUTH_67 = "WalkSouth67";
+    private const string WALK_EAST_112 = "WalkEast112";
     private const string WALK_EAST = "WalkEast";
     private const string WALK_NORTH_EAST = "WalkNorthEast";
+
+     private const string WALK_EAST_157 = "WalkNorthEast157";
     private const string WALK_NORTH = "WalkNorth";
 
     private const string SHOOT_SOUTH = "ShootSouth";
+    private const string SHOOT_SOUTH_22 = "ShootSouth22";
     private const string SHOOT_SOUTH_EAST = "ShootSouthEast";
+    private const string SHOOT_SOUTH_67 = "ShootSouth67";
     private const string SHOOT_EAST = "ShootEast";
+    private const string SHOOT_EAST_112 = "ShootEast112";
     private const string SHOOT_NORTH_EAST = "ShootNorthEast";
+    private const string SHOOT_EAST_157 = "ShootEast157";
     private const string SHOOT_NORTH = "ShootNorth";
 
     private const string GUN = "Gun";
@@ -38,9 +51,20 @@ public class PlayerMovement : NetworkBehaviour
 
     private Vector3 NORTH = new Vector3(0,1,0);
     private Vector3 NORTH_EAST = new Vector3(1,1,0);
+    private Vector3 NORTH_EAST_157 = new Vector3(1,.75f,0);
+    private Vector3 NORTH_WEST_157 = new Vector3(-1,.75f,0);
     private Vector3 EAST = new Vector3(1,0,0);
+    private Vector3 EAST_112 = new Vector3(1,.5f,0);
+    private Vector3 WEST_112 = new Vector3(-1,.5f,0);
     private Vector3 SOUTH_EAST = new Vector3(1,-1,0);
+
+    private Vector3 SOUTH_64 = new Vector3(.75f,-1,0);
+    private Vector3 SOUTH_WEST_64 = new Vector3(-.75f,-1,0);
+
     private Vector3 SOUTH = new Vector3(0,-1,0);
+
+    private Vector3 SOUTH_22 = new Vector3(.25f,-1,0);
+    private Vector3 SOUTH_WEST_22 = new Vector3(-.25f,-1,0);
     private Vector3 SOUTH_WEST = new Vector3(-1,-1,0);
     private Vector3 WEST =  new Vector3(-1,0,0);
     private Vector3 NORTH_WEST = new Vector3(-1,1,0);
@@ -112,17 +136,86 @@ public class PlayerMovement : NetworkBehaviour
 
     Vector3 GetDirection8(Vector2 dir)
     {
+        if (dir == Vector2.zero)
+            return Vector3.zero;
+
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         if (angle < 0) angle += 360f;
 
-        if (angle >= 337.5f || angle < 22.5f) return EAST;
-        if (angle < 67.5f) return NORTH_EAST;
-        if (angle < 112.5f) return NORTH;
-        if (angle < 157.5f) return NORTH_WEST;
-        if (angle < 202.5f) return WEST;
-        if (angle < 247.5f) return SOUTH_WEST;
-        if (angle < 292.5f) return SOUTH;
-        return SOUTH_EAST;
+        if (angle >= 260f)
+        {
+            if (angle <= 280f)
+                return SOUTH;
+
+            if (angle < 302f)
+                return SOUTH_22;
+
+            if (angle < 325f)
+                return SOUTH_EAST;
+
+            if (angle < 344f)
+                return SOUTH_64;
+
+            return EAST; // 344 → 360
+        }
+
+ 
+         if (angle < 10f){
+            return EAST_112;
+        }
+         if (angle < 30f){
+            return NORTH_EAST;
+        }
+
+        if(angle < 35f)
+        {
+            return NORTH_EAST;
+        }
+        if (angle < 60f){
+            return NORTH_EAST_157;
+        }
+        if (angle < 90){
+            return NORTH;
+        }
+        if (angle < 110f){
+            return NORTH;
+        }
+        if (angle < 135){
+            return NORTH_WEST_157;
+        }
+        if (angle < 170){
+            return NORTH_WEST;
+        }
+        if (angle < 190){
+            return WEST_112;
+        }
+
+        if (angle < 225){
+            return SOUTH_WEST;
+        }
+        if (angle < 300){
+            return SOUTH_WEST_22;
+        }
+
+
+
+
+
+
+
+
+
+        return NORTH; // 88 → 90+
+
+        if (angle < 191.25f) return WEST;
+        if (angle < 213.75f) return SOUTH_WEST;
+        if (angle < 236.25f) return SOUTH_64;
+        if (angle < 258.75f) return SOUTH;
+        if (angle < 281.25f) return SOUTH_22;
+        if (angle < 303.75f) return SOUTH_EAST;
+        if (angle < 326.25f) return SOUTH_64;
+
+        return EAST;
     }
     
     private void TriggerShootAnimation(Vector3 aimDirection)
@@ -138,6 +231,18 @@ public class PlayerMovement : NetworkBehaviour
             anim.SetTrigger(SHOOT_NORTH);
             CmdSendAnimationUpdate(SHOOT_NORTH, sr.flipX);
         }
+        else if(absVector == EAST_112)
+        {
+            anim.SetTrigger(SHOOT_EAST_112);
+            CmdSendAnimationUpdate(SHOOT_EAST_112, sr.flipX);
+
+        }
+        else if(absVector == NORTH_EAST_157)
+        {
+            anim.SetTrigger(SHOOT_EAST_157);
+            CmdSendAnimationUpdate(SHOOT_EAST_157, sr.flipX);
+
+        }
         else if(absVector == NORTH_EAST)
         {
             anim.SetTrigger(SHOOT_NORTH_EAST);
@@ -152,6 +257,16 @@ public class PlayerMovement : NetworkBehaviour
         {
             anim.SetTrigger(SHOOT_SOUTH_EAST);
             CmdSendAnimationUpdate(SHOOT_SOUTH_EAST, sr.flipX);
+        }
+        else if(absVector == SOUTH_22)
+        {
+            anim.SetTrigger(SHOOT_SOUTH_22);
+            CmdSendAnimationUpdate(SHOOT_SOUTH_22, sr.flipX);
+        }
+        else if(absVector == SOUTH_64)
+        {
+            anim.SetTrigger(SHOOT_SOUTH_67);
+            CmdSendAnimationUpdate(SHOOT_SOUTH_67, sr.flipX);
         }
 
         else if(absVector == SOUTH)
@@ -176,6 +291,16 @@ public class PlayerMovement : NetworkBehaviour
             anim.SetTrigger(WALK_NORTH);
             CmdSendAnimationUpdate(WALK_NORTH, sr.flipX);
         }
+        else if(absVector == NORTH_EAST_157)
+        {
+            anim.SetTrigger(WALK_EAST_157);
+            CmdSendAnimationUpdate(WALK_EAST_157, sr.flipX);
+        }
+        else if(absVector == EAST_112)
+        {
+            anim.SetTrigger(WALK_EAST_112);
+            CmdSendAnimationUpdate(WALK_EAST_112, sr.flipX);
+        }
         else if(absVector == NORTH_EAST)
         {
             anim.SetTrigger(WALK_NORTH_EAST);
@@ -186,12 +311,21 @@ public class PlayerMovement : NetworkBehaviour
             anim.SetTrigger(WALK_EAST);
             CmdSendAnimationUpdate(WALK_EAST, sr.flipX);
         }
+        else if(absVector == SOUTH_64)
+        {
+            anim.SetTrigger(WALK_SOUTH_67);
+            CmdSendAnimationUpdate(WALK_SOUTH_67, sr.flipX);
+        }
         else if(absVector == SOUTH_EAST)
         {
             anim.SetTrigger(WALK_SOUTH_EAST);
             CmdSendAnimationUpdate(WALK_SOUTH_EAST, sr.flipX);
         }
-
+        else if(absVector == SOUTH_22)
+        {
+            anim.SetTrigger(WALK_SOUTH_22);
+            CmdSendAnimationUpdate(WALK_SOUTH_22, sr.flipX);
+        }
         else if(absVector == SOUTH)
         {
             anim.SetTrigger(WALK_SOUTH);

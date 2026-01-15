@@ -1,5 +1,8 @@
 
 using System.Collections;
+using System.IO;
+using Mirror.BouncyCastle.Crypto.Agreement.Srp;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class VisualEnemy : MonoBehaviour
@@ -10,6 +13,10 @@ public class VisualEnemy : MonoBehaviour
 
     private Coroutine moveTowards;
 
+    private readonly WaitForFixedUpdate FIXED_UPDATE = new WaitForFixedUpdate();
+
+    private bool arrived = false;
+    
 
     protected float rotationSpeed = 180f;
     
@@ -21,12 +28,47 @@ public class VisualEnemy : MonoBehaviour
     [SerializeField]
     private EnemyType enemyType;
 
+    private Vector2 movingDirection;
+
+    private float movingDistance;
+
+    private float internalClock = 0;
+    private Vector3 startPosition;
+
+
     public EnemyType GetEnemyType { get {return enemyType;}}
 
-    void Update()
+    public void FixedUpdate()
     {
-        //float angle = Mathf.Atan2(targetDirection.y, targetDirection.x) * Mathf.Rad2Deg - 90f; // -90 because up is default
-        //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, 0, angle), Time.deltaTime * 10f);
+        if(arrived) return;
+        CalculateNextStep();
+
+    }
+
+    public Vector3 CalculateNextStep()
+    {
+        
+        //Vector3 start = transform.position;
+        Vector2 dirNorm = movingDirection.normalized;
+        Vector3 end = startPosition + (Vector3)(dirNorm * movingDistance);
+        float travelTime = movingDistance / moveSpeed;
+        if(internalClock >= travelTime)
+        {
+            arrived = true;
+            return end;
+            
+        }
+        float t = internalClock / travelTime;
+        Vector3 newPos = Vector3.Lerp(startPosition, end, t);
+        transform.position = newPos;
+        internalClock += Time.fixedDeltaTime;
+   
+        return newPos;
+    }
+
+    protected virtual void Awake()
+    {
+
     }
 
     public void SetTargetDirection(Vector2 dir)
@@ -57,7 +99,19 @@ public class VisualEnemy : MonoBehaviour
         {
             StopCoroutine(moveTowards);
         }
-        moveTowards = StartCoroutine(AdvanceForward(direction, distance));
+        arrived = false;
+        internalClock = 0;
+        movingDistance = distance;
+        movingDirection = direction;
+        startPosition = transform.position;
+        //moveTowards = StartCoroutine(AdvanceForward(direction, distance));
+    }
+
+    public virtual void MoveForward(Vector3 startPosition, Vector2 direction, float distance)
+    {
+        Debug.Log("Moving visual forward");
+        transform.position = startPosition;
+        MoveForward(direction, distance);
     }
 
     private IEnumerator RotateTowards(Vector3 direction)
@@ -96,7 +150,7 @@ public class VisualEnemy : MonoBehaviour
 
     private IEnumerator AdvanceForward(Vector2 direction, float distance)
     {
-            yield return new WaitForFixedUpdate();
+            yield return FIXED_UPDATE;
             Vector3 start = transform.position;
 
             Vector2 dirNorm = direction.normalized;
@@ -111,7 +165,7 @@ public class VisualEnemy : MonoBehaviour
                 Vector3 newPos = Vector3.Lerp(start, end, t);
                 transform.position = newPos;
                 elapsed += Time.fixedDeltaTime;
-                yield return new WaitForFixedUpdate();
+                yield return FIXED_UPDATE;
             }
 
             transform.position = end;
@@ -120,7 +174,7 @@ public class VisualEnemy : MonoBehaviour
     
     private IEnumerator AdvanceForward(float distance)
     {
-            yield return new WaitForFixedUpdate();
+            yield return FIXED_UPDATE;
             Vector3 start = transform.position;
 
             // Use world-space up direction normalized
@@ -137,7 +191,7 @@ public class VisualEnemy : MonoBehaviour
                 Vector3 newPos = Vector3.Lerp(start, end, t);
                 transform.position = newPos;
                 elapsed += Time.fixedDeltaTime;
-                yield return new WaitForFixedUpdate();
+                yield return FIXED_UPDATE;
             }
 
             transform.position = end;
@@ -145,13 +199,13 @@ public class VisualEnemy : MonoBehaviour
 
     public virtual void StartAim(Vector3 dir)
     {
-        Debug.Log("base start aim");
+
     }
     
 
     public virtual void FinishAim(Vector3 dir)
     {
-        Debug.Log("base finish aim");
+
     }
 
     public virtual void FinishRotation(Vector3 dir){
@@ -163,12 +217,22 @@ public class VisualEnemy : MonoBehaviour
         
     }
 
-    public virtual void FinishMovement(Vector3 finalPosition){
+    public virtual void FinishMovement(Vector3 finalPosition, bool movementCancelled){
+
         if (moveTowards != null)
         {
             StopCoroutine(moveTowards);
             moveTowards = null;
         }
         transform.position = finalPosition;
+        arrived = true;
+        internalClock = 0;
+    }
+
+    private void OnDisable()
+    {
+        internalClock = 0;
+        arrived = true;
+        transform.position = Vector3.zero;
     }
 }

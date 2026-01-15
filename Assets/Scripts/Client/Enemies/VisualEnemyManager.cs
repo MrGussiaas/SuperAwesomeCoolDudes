@@ -83,6 +83,7 @@ public class VisualEnemyManager : MonoBehaviour
         {
             case EnemyType.Slow :
                 {
+                    Debug.Log("Destroying slow enemy visual");
                     PerformRelease(visualEnemyPool, vb);
                     activeVisuals.Remove(netId);
                     break;

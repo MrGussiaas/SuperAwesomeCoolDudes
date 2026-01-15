@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Mirror;
 using Mirror.Examples.Billiards;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyCollisionScript : NetworkBehaviour
@@ -43,7 +44,7 @@ public class EnemyCollisionScript : NetworkBehaviour
         rb.MovePosition(rb.position + correction);
 
         if (iEnemy != null)
-            iEnemy.DoWallBump(rb.position);
+            iEnemy.DoWallBump(transform.position, Vector2.zero);
 
         needsCorrection = false;
         correction = Vector3.zero;
@@ -53,18 +54,25 @@ public class EnemyCollisionScript : NetworkBehaviour
     [ServerCallback]
     void OnCollisionEnter2D(Collision2D collision)
     {
+       // Debug.Log("Enemy collided with: " + collision.collider.tag);
         if (!collision.collider.CompareTag("Wall")) return;
         // Take the average normal of contacts
-        Vector2 avgNormal = Vector2.zero;
-        foreach (var c in collision.contacts)
-            avgNormal += c.normal;
-        avgNormal.Normalize();
-        if(avgNormal == Vector2.zero)
-        {
-            return;
-        }
-        correction = avgNormal * skin;
-        needsCorrection = true;
+       // needsCorrection = true;
+        if (iEnemy != null)
+            iEnemy.DoWallBump(rb.position, Vector3.zero);
     }
+
+    [ServerCallback]
+    void OnCollisionStay2D(Collision2D collision)
+    {
+       // Debug.Log("Enemy collided with: " + collision.collider.tag);
+        if (!collision.collider.CompareTag("Wall")) return;
+        // Take the average normal of contacts
+       // needsCorrection = true;
+        if (iEnemy != null)
+            iEnemy.DoWallBump(rb.position, collision.contacts[0].normal);
+    }
+
+
     
 }

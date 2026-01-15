@@ -10,6 +10,8 @@ public class EnemyServerSpawnerManager : MonoBehaviour
     [SerializeField]
     private List<GameObject> spawnerPrefabs;
 
+    private Dictionary<int, List<EnemyMovementSnapshot>> pendingMovementsBySpawner = new();
+
     public static EnemyServerSpawnerManager Instance { get; private set; }
 
     private Dictionary<int, EnemyServerSpawner> enemySpawners = new();
@@ -92,7 +94,7 @@ public class EnemyServerSpawnerManager : MonoBehaviour
             if(spawnerRegistry.TryGetValue(slot.enemyType, out var listOfSpawners)){
                 EnemyServerSpawner spawnerToUse = listOfSpawners[spawnerIndex];
                 spawnerToUse.SpawnEnemyOnServer(spawnerToUse.gameObject.GetInstanceID(), enemiesPerSpawner + remainder);
-                GameEvents.OnOpenGate?.Invoke((Direction)spawnerIndex);
+                GameEvents.OnOpenGate?.Invoke((Direction)spawnerIndex, GateOpenReason.EnemySpawned);
                 GameEvents.OnWaveSpawn?.Invoke((Direction)spawnerIndex, enemiesPerSpawner + remainder);
                 remainder = 0;
             }
@@ -232,6 +234,50 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         }
     }
 
+    public void AddEnemyMovement(Enemy enemy, Vector3 position, Vector3 direction, float distance)
+    {
+        if (enemy == null) return;
+
+        int spawnerId = enemy.SpawnerId;
+
+        if (!pendingMovementsBySpawner.TryGetValue(spawnerId, out var list))
+        {
+            list = new List<EnemyMovementSnapshot>();
+            pendingMovementsBySpawner[spawnerId] = list;
+        }
+
+        list.Add(new EnemyMovementSnapshot
+        {
+            enemyId = enemy.gameObject.GetInstanceID(),
+            spawnerId = enemy.SpawnerId,
+            position = position,
+            direction = direction,
+            distance = distance
+        });
+    }
+
+    private void LateUpdate()
+    {
+        foreach (var kvp in pendingMovementsBySpawner)
+        {
+            int spawnerId = kvp.Key;
+            
+            List<EnemyMovementSnapshot> snapshots = kvp.Value;
+
+            if (enemySpawners.TryGetValue(spawnerId, out var spawner) && snapshots.Count > 0)
+            {
+                Debug.Log("sending rpc array to spawner: " + spawnerId);
+                // Send one RPC per spawner with all its enemies
+                spawner.RpcSendEnemyMovements(snapshots.ToArray());
+            }
+        }
+
+        // Clear everything for next frame
+        pendingMovementsBySpawner.Clear();
+    }
+
+
+
     public void StartEnemyMove(Enemy enemy, Vector2 direction, float distance)
     {
         if (enemy == null)
@@ -247,7 +293,7 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         }
     }
 
-    public void FinishEnemyMove(Enemy enemy, Vector3 finalPoint)
+    public void FinishEnemyMove(Enemy enemy, Vector3 finalPoint, bool movementCancelled)
     {
         if (enemy == null)
             return;
@@ -258,7 +304,7 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         // Try to find the matching spawner in the dictionary
         if (enemySpawners.TryGetValue(spawnerId, out EnemyServerSpawner spawner))
         {
-            spawner.RpcFinishEnemyMove(enemy.gameObject.GetInstanceID(), finalPoint); // or whatever your release logic is
+            spawner.RpcFinishEnemyMove(enemy.gameObject.GetInstanceID(), finalPoint, movementCancelled); // or whatever your release logic is
         }
     }
 

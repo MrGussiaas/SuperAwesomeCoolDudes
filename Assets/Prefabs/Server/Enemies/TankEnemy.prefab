@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 766471452369022480}
   - component: {fileID: 4776270234445154959}
   - component: {fileID: -4391632314160533743}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: TankEnemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -492,7 +492,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3591538947910093145}
   - component: {fileID: 1951697730546988916}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HitBox
   m_TagString: Enemy
   m_Icon: {fileID: 0}

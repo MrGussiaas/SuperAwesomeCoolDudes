@@ -45,7 +45,7 @@ public class EnemyGatePassThroughCounter : MonoBehaviour
         }
         if(waveCount <= 0)
         {
-            GameEvents.OnCloseGate?.Invoke(gateHandler.GetDirection);
+            GameEvents.OnCloseGate?.Invoke(gateHandler.GetDirection, GateOpenReason.EnemySpawned);
             waveCount = 0;
         }
     }

@@ -32,13 +32,13 @@ public class TankEnemy : Enemy, IEnemy
 
     private const string TURRET = "Turret";
 
-    public void DoWallBump(Vector3 bumpedPosition)
+    public void DoWallBump(Vector3 bumpedPosition, Vector2 bumpNormal)
     {
         if (interrupted)
         {
             return;
         }
-        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, bumpedPosition);
+        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, bumpedPosition, false);
         interrupted = true;
         if(loopRoutine != null)
         {
@@ -67,9 +67,9 @@ public class TankEnemy : Enemy, IEnemy
         }
     }
 
-    public override void Initialize(Vector2 direction)
+    public override void Initialize(Vector2 direction, Vector3 position)
     {
-        base.Initialize(direction);
+        base.Initialize(direction, position);
         initialWayPoint = direction;
         
     }
@@ -131,7 +131,7 @@ public class TankEnemy : Enemy, IEnemy
         interrupted = false;
         EnemyServerSpawnerManager.Instance.StartEnemyMove(this, 2);
         yield return StartCoroutine(MoveForward(2));
-        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position);
+        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
         yield return new WaitForFixedUpdate();
         loopRoutine = StartCoroutine(EnemyLoop());
         
@@ -200,7 +200,7 @@ public class TankEnemy : Enemy, IEnemy
             EnemyServerSpawnerManager.Instance.StartEnemyMove(this, moveDistance);
 
             yield return StartCoroutine(MoveForward(moveDistance));
-            EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position);
+            EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
             yield return new WaitForFixedUpdate();
             Vector3 bulletTrajectory = DirectionFromAngle(0);
             EnemyServerSpawnerManager.Instance.StartEnemyAim(this, bulletTrajectory);
@@ -263,7 +263,7 @@ public class TankEnemy : Enemy, IEnemy
         EnemyServerSpawnerManager.Instance.StartEnemyMove(this, initialDistance);
         yield return StartCoroutine(MoveForward(initialDistance));
 
-        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position);
+        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
         yield return new WaitForFixedUpdate();
         if (loopRoutine != null)
         {
@@ -289,7 +289,7 @@ public class TankEnemy : Enemy, IEnemy
 
         EnemyServerSpawnerManager.Instance.StartEnemyMove(this, 1.25f);
         yield return StartCoroutine(MoveForward(1.25f));
-        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position);
+        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
 
         loopRoutine = StartCoroutine(EnemyLoop());
         duringInitial = false;

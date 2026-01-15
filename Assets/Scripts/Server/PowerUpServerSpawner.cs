@@ -123,17 +123,21 @@ public class PowerUpServerSpawner : NetworkBehaviour
 
     private IEnumerator PowerUpSpawnLoop()
     {
+        Debug.Log("Power up spawner loop begun");
         while(true){
             yield return new WaitForSeconds(spawnDelay);
             int powerUpCounts = powerUpRegistry.Count;
             int keySlot = Random.Range(0, powerUpCounts);
             if(powerUpRegistry.TryGetValue((AbilitiesEnum)keySlot, out var q))
             {
+                
                 if(q == null || q.Count <= 0)
                 {
                     continue;
                 }
+                
                 PowerUp powerUp = q.Dequeue();
+                Debug.Log("Spawning power up of type: " + powerUp.PowerUpType);
                 SpawnPowerUp(powerUp);
             }
         }

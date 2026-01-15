@@ -19,6 +19,8 @@ public class GateHandler : NetworkBehaviour
     private const string OPEN_GATE = "OpenGate";
     private const string CLOSE_GATE = "CloseGate";
 
+    private HashSet<GateOpenReason> openReasons = new();
+
     private void InitVars()
     {
         if(sr == null){
@@ -44,7 +46,7 @@ public class GateHandler : NetworkBehaviour
         InitVars();
     }
 
-    public void OpenGate()
+    private void OpenGateInternal()
     {
         if(sr != null){
             sr.enabled = false;
@@ -53,11 +55,30 @@ public class GateHandler : NetworkBehaviour
         {
             animator.SetTrigger(OPEN_GATE);
         }
-        collider.enabled = false;
+
         
     }
 
-    public void CloseGate()
+    public void RequestGateOpen(GateOpenReason reason)
+    {
+        openReasons.Add(reason);
+        if(reason == GateOpenReason.ArenaCleared){
+            collider.enabled = false;
+        }
+        OpenGateInternal();
+    }
+
+    public void RequestGateClose(GateOpenReason reason)
+    {
+        openReasons.Remove(reason);
+        if(openReasons.Count == 0)
+        {
+            CloseGateInternal();
+        }
+    }
+
+
+    private void CloseGateInternal()
     {
         if(sr != null){
             sr.enabled = true;

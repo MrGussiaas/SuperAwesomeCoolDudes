@@ -156,21 +156,23 @@ public class EnemyServerSpawner : NetworkBehaviour
     [ClientRpc]
     public void RpcSpawnVisual(EnemyType enemyType, Vector3 position, Vector2 dir, int bulletId)
     {
+
         if(VisualEnemyManager.Instance.GetEnemyById(bulletId) != null)
         {
-            VisualEnemyManager.Instance.GetEnemyById(bulletId).transform.position = position;
-            VisualEnemyManager.Instance.GetEnemyById(bulletId).transform.up = dir;
-            VisualEnemyManager.Instance.GetEnemyById(bulletId).gameObject.SetActive(true);
+           // VisualEnemyManager.Instance.GetEnemyById(bulletId).transform.position = position;
+            //VisualEnemyManager.Instance.GetEnemyById(bulletId).transform.up = dir;
+            //VisualEnemyManager.Instance.GetEnemyById(bulletId).gameObject.SetActive(true);
         }
 
         VisualEnemy vb = VisualEnemyManager.Instance.GetPooledEnemy(enemyType);
 
         // Position and orient it
+        vb.gameObject.SetActive(true);
         vb.transform.position = position;
         vb.transform.up = dir;
 
         // Reactivate and launch it
-        vb.gameObject.SetActive(true);
+        
 
         // Register it for later destruction
         VisualEnemyManager.Instance.RegisterEnemy(bulletId, vb);
@@ -192,7 +194,7 @@ public class EnemyServerSpawner : NetworkBehaviour
 
         
         //enemy.Initialize(ConvertInitialWayPointToLocalPosition());
-        enemy.Initialize(initalWayPoint);
+        enemy.Initialize(initalWayPoint, position);
         enemy.ResetState();
         RpcSpawnVisual(enemy.GetEnemyType, position, direction, enemyId);
         
@@ -277,11 +279,11 @@ public class EnemyServerSpawner : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcFinishEnemyMove(int enemyId, Vector3 finalPos)
+    public void RpcFinishEnemyMove(int enemyId, Vector3 finalPos, bool movementCancelled)
     {
         var visual = VisualEnemyManager.Instance.GetEnemyById(enemyId);
         if (visual != null)
-            visual.FinishMovement(finalPos);
+            visual.FinishMovement(finalPos, movementCancelled);
     }
 
     [ClientRpc]
@@ -312,6 +314,15 @@ public class EnemyServerSpawner : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    internal void RpcSendEnemyMovements(EnemyMovementSnapshot[] enemyMovementSnapshots)
+    {
+        foreach(EnemyMovementSnapshot snapShot in enemyMovementSnapshots){
+        var visual = VisualEnemyManager.Instance.GetEnemyById(snapShot.enemyId);
+        if (visual != null)
+            visual.MoveForward(snapShot.position, snapShot.direction, snapShot.distance);
+        }
+    }
 
     public struct RequestEnemySyncMessage : NetworkMessage { }
 }

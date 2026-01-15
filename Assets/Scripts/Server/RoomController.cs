@@ -134,7 +134,7 @@ public class RoomController : NetworkBehaviour
     private IEnumerator LerpPlayersToStart(GameObject[] players,  Direction directionEnteringFrom)
     {
         
-        HandleGateOpen(directionEnteringFrom);
+        HandleGateOpen(directionEnteringFrom, GateOpenReason.PlayerSpawned);
         DisablePlayerControls(false, players);
         Vector3 teleportPosition = getEntranceSpawnForPlayer(directionEnteringFrom);
         Vector3 wayPointPosition = getEntranceFinishForPlayer(directionEnteringFrom);
@@ -142,7 +142,7 @@ public class RoomController : NetworkBehaviour
         TriggerEntranceAnimation(directionEnteringFrom, players);
         yield return StartCoroutine(LerpPlayersTo(wayPointPosition, players));
         spawnPlayersTo(players, wayPointPosition);
-        HandleGateClose(directionEnteringFrom);
+        HandleGateClose(directionEnteringFrom, GateOpenReason.PlayerSpawned);
         yield return null;
         DisablePlayerControls(true, players);
         
@@ -155,7 +155,8 @@ public class RoomController : NetworkBehaviour
         isTransitioning = true;
         EnemyServerSpawnerManager.Instance.UpdateLocation(transform.position);
         PowerUpServerSpawner.Instance.UpdateLocation(transform.position);
-        HandleGateOpen(directionEnteringFrom);
+        CollectibleServerSpawner.Instance.UpdateLocation(transform.position);
+        HandleGateOpen(directionEnteringFrom, GateOpenReason.RoomActivated);
         GameObject[] players = getPlayers();
         DisablePlayerControls(true, players);
         Vector3 teleportPosition = getEntranceSpawnForPlayer(directionEnteringFrom);
@@ -167,7 +168,7 @@ public class RoomController : NetworkBehaviour
         yield return StartCoroutine(LerpPlayersTo(wayPointPosition, players));
         spawnPlayersTo(players, wayPointPosition);
         yield return null;
-        HandleGateClose(directionEnteringFrom);
+        HandleGateClose(directionEnteringFrom, GateOpenReason.RoomActivated);
         yield return null;
         GameEvents.OnRoomLoad?.Invoke();
         isTransitioning = false;
@@ -265,7 +266,7 @@ public class RoomController : NetworkBehaviour
 
         waveOrchestrator.gameObject.SetActive(isActiveRoom);
         SetGateStatus(isActiveRoom, enteredFrom);
-        HandleGateOpen(enteredFrom);
+        HandleGateOpen(enteredFrom, GateOpenReason.RoomActivated);
         if(isActiveRoom && !isTransitioning){
             
             StartCoroutine(DoRoomTransition(enteredFrom));
@@ -290,7 +291,7 @@ public class RoomController : NetworkBehaviour
     }
 
     [Server]
-    private void HandleGateOpen(Direction direction)
+    private void HandleGateOpen(Direction direction, GateOpenReason reason)
     {
         if (!isActiveRoom)
         {
@@ -299,14 +300,14 @@ public class RoomController : NetworkBehaviour
         if (gateHandlers.TryGetValue(direction, out var handler))
         {
             handler.gameObject.SetActive(true);
-            handler.OpenGate();
+            handler.RequestGateOpen(reason);
         }
         
-        RpcOpenGate(direction);
+        RpcOpenGate(direction, reason);
     }
 
     [Server]
-    private void HandleGateClose(Direction direction)
+    private void HandleGateClose(Direction direction, GateOpenReason reason)
     {
         if (!isActiveRoom)
         {
@@ -314,9 +315,9 @@ public class RoomController : NetworkBehaviour
         }
         if (gateHandlers.TryGetValue(direction, out var handler))
         {
-            handler.CloseGate();
+            handler.RequestGateClose(reason);
         }
-        RpcCloseGate(direction);
+        RpcCloseGate(direction, reason);
     }
 
     private Vector3 getEntranceSpawnForPlayer(Direction direction)
@@ -355,9 +356,9 @@ public class RoomController : NetworkBehaviour
             ActivateExit(i);
             if (gateHandlers.TryGetValue(roomExits[i].ExitDirection, out var handler))
             {
-                handler.OpenGate();
+                handler.RequestGateOpen(GateOpenReason.ArenaCleared);
             }
-            RpcOpenGate(roomExits[i].ExitDirection);
+            RpcOpenGate(roomExits[i].ExitDirection, GateOpenReason.ArenaCleared);
         }
     }
 
@@ -374,21 +375,21 @@ public class RoomController : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void RpcOpenGate(Direction direction)
+    private void RpcOpenGate(Direction direction, GateOpenReason reason)
     {
         
         if (gateHandlers.TryGetValue(direction, out var handler))
         {
-            handler.OpenGate();
+            handler.RequestGateOpen(reason);
         }
     }
 
     [ClientRpc]
-    private void RpcCloseGate(Direction direction)
+    private void RpcCloseGate(Direction direction, GateOpenReason reason)
     {
         if (gateHandlers.TryGetValue(direction, out var handler))
         {
-            handler.CloseGate();
+            handler.RequestGateClose(reason);
         }
     }
 

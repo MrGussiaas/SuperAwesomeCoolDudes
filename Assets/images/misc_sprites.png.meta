@@ -210,6 +210,69 @@ TextureImporter:
       name: misc_sprites_4
       rect:
         serializedVersion: 2
+        x: 730
+        y: 816
+        width: 47
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 69f9d92bb764f0b4aa2dfc8edd7e6729
+      internalID: 1807206994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: misc_sprites_5
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 826
+        width: 66
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c5e3657abfaeb42468d792f0fd2c4349
+      internalID: -1730517802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: misc_sprites_6
+      rect:
+        serializedVersion: 2
+        x: 901
+        y: 812
+        width: 73
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6ce45212372fca74a8ac46f2908c2198
+      internalID: 1360390846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: misc_sprites_7
+      rect:
+        serializedVersion: 2
         x: 122
         y: 919
         width: 5
@@ -221,8 +284,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 69f9d92bb764f0b4aa2dfc8edd7e6729
-      internalID: 1807206994
+      spriteID: c76f16850e4a7f8498a4880d05035b3d
+      internalID: -1599422367
       vertices: []
       indices: 
       edges: []
@@ -243,6 +306,9 @@ TextureImporter:
       misc_sprites_2: -1206835634
       misc_sprites_3: -370725776
       misc_sprites_4: 1807206994
+      misc_sprites_5: -1730517802
+      misc_sprites_6: 1360390846
+      misc_sprites_7: -1599422367
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

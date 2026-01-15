@@ -27,6 +27,7 @@ public class VisualEnemyPool : MonoBehaviour
             },
             actionOnRelease: visualEnemy =>
             {
+                Debug.Log("deactivating visual enemy");
                 visualEnemy.gameObject.SetActive(false);
             },
             actionOnDestroy: visualEnemy =>

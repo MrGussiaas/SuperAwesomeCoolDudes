@@ -11,12 +11,15 @@ public class PlayerCollisions : NetworkBehaviour
     private const string WALL = "Wall";
 
     private const string POWER_UP = "PowerUp";
+    private const string COLLECTIBLE = "Collectible";
 
     private const string ENEMY = "Enemy";
 
     private const string ENEMY_BULLET = "EnemyBullet";
 
-    private BoxCollider2D boxCollider;
+    //private BoxCollider2D boxCollider;
+
+    private CapsuleCollider2D boxCollider;
 
     private Rigidbody2D rb;
 
@@ -36,7 +39,8 @@ public class PlayerCollisions : NetworkBehaviour
 
     private void Awake()
     {
-        boxCollider = GetComponent<BoxCollider2D>();
+        //boxCollider = GetComponent<BoxCollider2D>();
+        boxCollider = GetComponent<CapsuleCollider2D>();
         rb = GetComponentInParent<Rigidbody2D>();
         halfWidth = boxCollider.size.x / 2;
         halfHeight = boxCollider.size.y / 2;
@@ -77,6 +81,11 @@ public class PlayerCollisions : NetworkBehaviour
             GameEvents.PowerUpRemovedFromRoom(powerUp);
             
 
+        }
+        if (wall.CompareTag(COLLECTIBLE))
+        {
+            Collectible collectibe = wall.GetComponent<Collectible>();
+            GameEvents.CollectibleRemovedFromRoom(collectibe);
         }
         if ( !playerStates.IsInvincible && wall.CompareTag(ENEMY) || wall.CompareTag(ENEMY_BULLET))
         {

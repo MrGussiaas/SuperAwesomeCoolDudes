@@ -65,7 +65,7 @@ MonoBehaviour:
   eastSpawnPos: {x: 4.3, y: 0, z: 0}
   southSpawnPos: {x: 0, y: -2.62, z: 0}
   westSpawnPos: {x: -4.15, y: 0, z: 0}
-  northWayPointOffset: {x: 0.15, y: -1.69, z: 0}
+  northWayPointOffset: {x: 0.15, y: -2.09, z: 0}
   eastWayPointOffset: {x: -2.72, y: -0.04, z: 0}
   southWayPointOffset: {x: 0, y: 1.41, z: 0}
   westWayPointOffset: {x: 2.29, y: 0, z: 0}
