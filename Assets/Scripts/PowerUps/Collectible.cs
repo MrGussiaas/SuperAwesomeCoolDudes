@@ -60,6 +60,8 @@ public class Collectible : NetworkBehaviour
             yield return null;
         }
         sr.color = opaqueColor;
-        GameEvents.CollectibleRemovedFromRoom(this);
+        if(isServer){
+            GameEvents.CollectibleRemovedFromRoom(this);
+        }
     }
 }

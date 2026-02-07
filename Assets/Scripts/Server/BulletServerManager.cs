@@ -18,6 +18,8 @@ public class BulletServerManager : NetworkBehaviour
     private GameObject enemyBulletServerPoolPrefab;
     [SerializeField]
     private GameObject rocketBulletServerPoolPrefab;
+    [SerializeField]
+    private GameObject borsenBulletServerPoolPrefab;
 
     private BulletServerPool bulletServerPool;
 
@@ -26,6 +28,8 @@ public class BulletServerManager : NetworkBehaviour
     private BulletServerPool enemyBulletServerPool;
 
     private BulletServerPool rocketServerPool;
+
+    private BulletServerPool borsenBulletServerPool;
 
     public override void OnStartServer()
     {
@@ -45,10 +49,12 @@ public class BulletServerManager : NetworkBehaviour
         GameObject sharpnelInstance = Instantiate(shrapnelServerPoolPrefab, transform);
         GameObject enemyBulletPoolInstance = Instantiate(enemyBulletServerPoolPrefab, transform);
         GameObject rocketBulletPoolInstance = Instantiate(rocketBulletServerPoolPrefab, transform);
+        GameObject borsenBulletPoolInstance = Instantiate(borsenBulletServerPoolPrefab, transform);
         bulletServerPool = poolInstance.GetComponent<BulletServerPool>();
         shrapnelServerPool = sharpnelInstance.GetComponent<BulletServerPool>();
         enemyBulletServerPool = enemyBulletPoolInstance.GetComponent<BulletServerPool>();
         rocketServerPool = rocketBulletPoolInstance.GetComponent<BulletServerPool>();
+        borsenBulletServerPool = borsenBulletPoolInstance.GetComponent<BulletServerPool>();
 
     }
 
@@ -85,6 +91,11 @@ public class BulletServerManager : NetworkBehaviour
                     answer = rocketServerPool.Get();
                     break;
                 }
+            case BulletType.BorsenProjectile :
+            {
+                answer = borsenBulletServerPool.Get();
+                break;
+            }
             default : break;
         }
         if(answer != null)
@@ -153,6 +164,11 @@ public class BulletServerManager : NetworkBehaviour
                 ReleaseBulletFromPool(rocketServerPool, vb);
                 break;
             }
+            case BulletType.BorsenProjectile :
+                {
+                    ReleaseBulletFromPool(borsenBulletServerPool, vb);
+                    break;
+                }
             default: break;
         }
     }
@@ -232,6 +248,34 @@ public class BulletServerManager : NetworkBehaviour
 
             // Spawn visual on clients
             RpcSpawnVisual(BulletType.Shrapnel, position, direction, bulletId);
+        }
+    }
+
+    [Server]
+    public void SpawnBorsenProjectilesOnServer(Vector3 position)
+    {
+        int count = 20;                // number of pieces
+        float angleStep = 360f / count;
+
+        for (int i = 0; i < count; i++)
+        {
+            float angle = i * angleStep;
+
+            // Rotated direction (using Up as forward)
+            Vector3 direction = Quaternion.Euler(0, 0, angle) * Vector3.up;
+
+            // Get shrapnel bullet from pool
+            Bullet shrap = GetBullet(BulletType.BorsenProjectile);
+            shrap.ResetState();
+            shrap.Initialize(direction);
+            shrap.transform.position = position;
+            shrap.transform.up = direction;
+            shrap.gameObject.SetActive(true);
+
+            int bulletId = shrap.gameObject.GetInstanceID();
+
+            // Spawn visual on clients
+            RpcSpawnVisual(BulletType.BorsenProjectile, position, direction, bulletId);
         }
     }
 

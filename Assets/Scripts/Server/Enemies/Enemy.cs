@@ -2,7 +2,7 @@ using UnityEngine;
 using Mirror;
 
 
-public class Enemy : NetworkBehaviour
+public class Enemy : NetworkBehaviour, IDamagable
 {
     protected const string PLAYER_TAG = "Player";
     protected enum EnemyState { Deactive, InitialWayPoint, Spawning, Idle, Moving }

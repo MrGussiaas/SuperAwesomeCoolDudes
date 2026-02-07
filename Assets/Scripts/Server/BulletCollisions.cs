@@ -25,13 +25,15 @@ public class BulletCollisions : NetworkBehaviour
             HandleWallCollision();
         }
         int id = collision.gameObject.GetInstanceID();
-        Enemy enemy = collision.gameObject.GetComponent<Enemy>();
-
-        if (enemy != null && enemy.isActiveAndEnabled)
+        if (collision.TryGetComponent<IDamagable>(out var damageable))
         {
-            BulletServerManager.Instance.ReleaseBullet(bullet);
-            enemy.TakeDamage();
-           
+            var behaviour = damageable as Behaviour;
+
+            if (behaviour != null && behaviour.isActiveAndEnabled)
+            {
+                BulletServerManager.Instance.ReleaseBullet(bullet);
+                damageable.TakeDamage();
+            }
         }
     }
 

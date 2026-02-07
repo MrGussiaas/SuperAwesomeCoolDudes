@@ -17,6 +17,8 @@ public class PlayerCollisions : NetworkBehaviour
 
     private const string ENEMY_BULLET = "EnemyBullet";
 
+    private const string BORSEN = "Borsen";
+
     //private BoxCollider2D boxCollider;
 
     private CapsuleCollider2D boxCollider;
@@ -63,7 +65,7 @@ public class PlayerCollisions : NetworkBehaviour
         
     }
 
-    private void KillPlayer()
+    public void KillPlayer()
     {
         RoomController.ActiveRoom.RespawnPlayer(transform.root.gameObject);
         //this.gameObject.SetActive(false);
@@ -87,7 +89,7 @@ public class PlayerCollisions : NetworkBehaviour
             Collectible collectibe = wall.GetComponent<Collectible>();
             GameEvents.CollectibleRemovedFromRoom(collectibe);
         }
-        if ( !playerStates.IsInvincible && wall.CompareTag(ENEMY) || wall.CompareTag(ENEMY_BULLET))
+        if ( !playerStates.IsInvincible && wall.CompareTag(ENEMY) || wall.CompareTag(ENEMY_BULLET) || wall.CompareTag(BORSEN))
         {
             KillPlayer();
         }

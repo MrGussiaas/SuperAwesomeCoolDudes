@@ -4,5 +4,6 @@ public enum BulletType
     Shrapnel,
 
     EnemyBullet,
-    Rocket
+    Rocket,
+    BorsenProjectile
 }

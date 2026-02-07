@@ -20,6 +20,9 @@ public class VisualBulletManager : MonoBehaviour
     [SerializeField]
     private GameObject visualRocketPoolPrefab;
 
+    [SerializeField]
+    private GameObject visualBorsenProjectilePoolPrefab;
+
     private BulletVisualPool bulletVisualPool;
 
     private BulletVisualPool shrapnelVisualPool;
@@ -27,6 +30,8 @@ public class VisualBulletManager : MonoBehaviour
     private BulletVisualPool enemyBulletVisualPool;
 
     private BulletVisualPool rocketVisualPool;
+
+    private BulletVisualPool borsenVisualPool;
 
     void Awake()
     {
@@ -40,10 +45,12 @@ public class VisualBulletManager : MonoBehaviour
         GameObject shrapnelInstance = Instantiate(visualShrapnelPoolPrefab, transform);
         GameObject enemyBulletPoolInstance = Instantiate(visualEnemyPoolPrefab, transform);
         GameObject rocketBulletPoolInstance = Instantiate(visualRocketPoolPrefab, transform);
+        GameObject borsenProjectilePoolInstance = Instantiate(visualBorsenProjectilePoolPrefab, transform);
         bulletVisualPool = poolInstance.GetComponent<BulletVisualPool>();
         shrapnelVisualPool = shrapnelInstance.GetComponent<BulletVisualPool>();
         enemyBulletVisualPool = enemyBulletPoolInstance.GetComponent<BulletVisualPool>();
         rocketVisualPool = rocketBulletPoolInstance.GetComponent<BulletVisualPool>();
+        borsenVisualPool = borsenProjectilePoolInstance.GetComponent<BulletVisualPool>();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -98,6 +105,11 @@ public class VisualBulletManager : MonoBehaviour
                     DestroyVisualBullet(rocketVisualPool, vb);
                     break;
                 }
+            case BulletType.BorsenProjectile :
+                {
+                    DestroyVisualBullet(borsenVisualPool, vb);
+                    break;
+                }
             default:
                 break;
         }
@@ -127,6 +139,7 @@ public class VisualBulletManager : MonoBehaviour
             case BulletType.Shrapnel : return shrapnelVisualPool.Get();
             case BulletType.EnemyBullet : return enemyBulletVisualPool.Get();
             case BulletType.Rocket : return rocketVisualPool.Get();
+            case BulletType.BorsenProjectile : return borsenVisualPool.Get();
             default : return bulletVisualPool.Get();
 
         }

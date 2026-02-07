@@ -137,6 +137,7 @@ public class RoomController : NetworkBehaviour
         HandleGateOpen(directionEnteringFrom, GateOpenReason.PlayerSpawned);
         DisablePlayerControls(false, players);
         Vector3 teleportPosition = getEntranceSpawnForPlayer(directionEnteringFrom);
+        Debug.Log("Lerping Player to start: " + directionEnteringFrom + " teleport: " + teleportPosition);
         Vector3 wayPointPosition = getEntranceFinishForPlayer(directionEnteringFrom);
         spawnPlayersTo(players, teleportPosition);
         TriggerEntranceAnimation(directionEnteringFrom, players);
@@ -326,7 +327,7 @@ public class RoomController : NetworkBehaviour
         {
             if (roomExits[i].ExitDirection == direction)
             {
-                return roomExits[i].transform.TransformPoint(roomExits[i].PlayerEntranceSpawn);
+                return roomExits[i].PlayerEntranceSpawn;
             }
         }   
         return Vector3.zero;
