@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TankEnemy : Enemy, IEnemy
@@ -12,8 +13,17 @@ public class TankEnemy : Enemy, IEnemy
         Vector3.left
     };
 
+    private Vector3[] shotVectors;
+
+
+    private enum internalStates  {ROTATING, DEFAULT, FINISHED_WAY_POINT_ROTATION, BUMPED_WALL, SHOOTING};
+
+    private internalStates internalState = internalStates.DEFAULT;
+
     // Start is called before the first frame update
     int health = 1;
+
+    private float internalTick = 0;
 
     private EnemyTurret turret;
 
@@ -27,14 +37,53 @@ public class TankEnemy : Enemy, IEnemy
 
     private Vector3 initialWayPoint;
 
-    private bool duringInitial = false;
     private bool interrupted = false;
 
     private const string TURRET = "Turret";
 
+    private Vector3 directionToRotate;
+    private float startRotation;
+    private float endRotation;
+    private float rotationDuration;
+
+    private bool ignoreCollisionsTemporarily = false;
+
+
+
+    protected override void ArrivedAtDestination()
+    {
+        if(internalState == internalStates.BUMPED_WALL)
+        {
+            return;
+        }
+        internalState = internalStates.SHOOTING;
+        EnemyServerSpawnerManager.Instance.StartEnemyAim(this, Vector3.zero);
+       turret.StartFull360();
+       // internalState = internalStates.ROTATING;
+    }
+
+    public void ExitWallBump(Vector3 bumpedPosition, Vector2 bumpNormal)
+    {
+        
+        if(internalState != internalStates.ROTATING)
+        {
+            ignoreCollisionsTemporarily = false;
+        }
+    }
+
     public void DoWallBump(Vector3 bumpedPosition, Vector2 bumpNormal)
     {
-        if (interrupted)
+        if(ignoreCollisionsTemporarily)
+        {
+            return;
+        }
+
+        ignoreCollisionsTemporarily = true;
+        internalState = internalStates.BUMPED_WALL;
+        internalTick = 0;
+        
+        base.DoWallBump(bumpedPosition, bumpNormal);
+       /* if (interrupted)
         {
             return;
         }
@@ -45,12 +94,98 @@ public class TankEnemy : Enemy, IEnemy
             StopCoroutine(loopRoutine);
             loopRoutine = null;
         }
-        StartCoroutine(ReverseDirection());
+        //StartCoroutine(ReverseDirection()); */
+    }
+
+    protected override void DoNextStepLive()
+    {
+        if(internalState == internalStates.DEFAULT){
+            base.DoNextStepLive();
+        }
+        if(internalState == internalStates.ROTATING)
+        {
+            DoRotationStep();
+        }
+    }
+
+    protected override Vector2 RecalibrateDirection()
+    {
+        if(internalState == internalStates.BUMPED_WALL)
+        {
+          
+            Vector3 newDir = -transform.up;
+            newDir.z = 180;
+            newDir.Normalize();
+            internalTick = 0;
+            RecalibrateInternalRotationVars(newDir);
+            EnemyServerSpawnerManager.Instance.StartRotation(this, newDir);
+            internalState = internalStates.ROTATING;
+            return newDir;
+        }
+        else if(internalState == internalStates.FINISHED_WAY_POINT_ROTATION)
+        {
+            
+            Vector3 fwd = transform.up;
+            Vector3 closestDir = Vector3.up;
+            float maxDot = -Mathf.Infinity;
+
+            foreach (var dir in cardinalDirs)
+            {
+                float d = Vector3.Dot(fwd, dir);
+                if (d > maxDot)
+                {
+                    maxDot = d;
+                    closestDir = dir;
+                }
+            }
+            
+            EnemyServerSpawnerManager.Instance.StartRotation(this, closestDir);
+            RecalibrateInternalRotationVars(closestDir);
+            internalState = internalStates.ROTATING;
+            internalTick = 0;
+            return closestDir;
+        }
+        else
+        {
+             int turn = Random.value < 0.5f ? -90 : 90;   // randomly choose +90 or -90 degrees
+            Vector3 newDir = Quaternion.Euler(0, 0, turn) * transform.up;
+            newDir.z = 0;
+            newDir.Normalize();
+            RecalibrateInternalRotationVars(newDir);
+            EnemyServerSpawnerManager.Instance.StartRotation(this, newDir);
+            internalState = internalStates.ROTATING;
+            internalTick = 0;
+             return newDir;
+        }
+    }
+
+    protected override void DoInitialStepAfterRecalibration()
+    {
+
+    }
+    protected override void DoNextStepToWayPoint()
+    {
+        if(internalState != internalStates.ROTATING){
+            base.DoNextStepToWayPoint();
+            return;
+        }
+        
     }
 
     protected override void Awake()
     {
         base.Awake();
+        shotVectors = new Vector3[]
+        {
+            DirectionFromAngle(0),
+            DirectionFromAngle(45),
+            DirectionFromAngle(90),
+            DirectionFromAngle(135),
+            DirectionFromAngle(180),
+            DirectionFromAngle(225),
+            DirectionFromAngle(0)
+        };
+
         InitVars();
     }
 
@@ -74,103 +209,105 @@ public class TankEnemy : Enemy, IEnemy
         
     }
 
+    private Vector3 RecalibrateInternalRotationVars(Vector3 rotationPoint)
+    {
+       // Vector3 start = rb.position;
+       // directionToRotate = (rotationPoint - start).normalized;
+       
+        directionToRotate = rotationPoint;
+
+        startRotation = transform.eulerAngles.z;
+        endRotation = Mathf.Atan2(directionToRotate.y, directionToRotate.x) * Mathf.Rad2Deg - 90f; // subtract 90 because up is forward
+        float delta = Mathf.DeltaAngle(startRotation, endRotation);
+        rotationDuration = Mathf.Abs(delta) / rotationSpeed;
+        if (Mathf.Abs(delta) < 2f)
+        {
+            //transform.rotation = Quaternion.Euler(0f, 0f, endRotation);
+        }
+        return directionToRotate; 
+    }
+
+    public override void FixedUpdate()
+    {
+        if(currentState == EnemyState.Spawning && internalState == internalStates.ROTATING && internalTick <= 0)
+        {
+            Vector3 start = rb.position;
+            Vector3 vecToWayPoint = (initialWayPoint - start).normalized;
+            vecToWayPoint.z = 0f;
+            vecToWayPoint.Normalize();
+            gameObject.layer = LayerMask.NameToLayer(NON_COLLISION_LAYER);
+            RecalibrateInternalRotationVars(vecToWayPoint);
+            EnemyServerSpawnerManager.Instance.StartRotation(this, vecToWayPoint);
+            DoRotationStep();
+            return;
+        }
+        else if(internalState == internalStates.ROTATING)
+        {
+            DoRotationStep();
+        }
+        else if(internalState == internalStates.SHOOTING)
+        {
+
+            if (turret.IsDoneAiming)
+            {
+                turret.FinishAim(this);
+                //turret.InitiateAim(this, shotVectors[internalShotCounter % shotVectors.Length]);
+
+                if (turret.StartNextStep())
+                {
+                    internalState = internalStates.DEFAULT;
+                }
+                BulletServerManager.Instance.SpawnEnemyBulletOnServer(turret.transform.position, turret.transform.up);
+                return;   
+            }
+            turret.DoAimStep();
+
+        }
+        else
+        {
+          base.FixedUpdate(); 
+        }
+
+    }
+
+    private void DoRotationStep()
+    {
+        if(internalTick >= rotationDuration)
+        {
+            transform.rotation = Quaternion.Euler(0f, 0f, endRotation);
+            internalTick = 0;
+            internalState = internalStates.DEFAULT;
+            if(currentState == EnemyState.Spawning)
+            {
+                internalState = internalStates.FINISHED_WAY_POINT_ROTATION;
+            }
+            else
+            {
+                EnemyServerSpawnerManager.Instance.StartEnemyMove(this, direction, distance);
+            }
+            return;
+        }
+        internalTick+= Time.deltaTime;
+        float t = internalTick / rotationDuration;
+        float currentAngle = Mathf.LerpAngle(startRotation, endRotation, t);
+        transform.rotation = Quaternion.Euler(0f, 0f, currentAngle);
+    }
+
     public override void ResetState()
     {
         base.ResetState();
+        internalState = internalStates.ROTATING;
         health = 1;
         interrupted = false;
         transform.rotation = Quaternion.identity;
-        //EnemyServerSpawner.Instance.RpcUpdateEnemyVisual(gameObject.GetInstanceID(), rotateTo);
+
         active = true;
-        if (loopRoutine != null)
-        {
-            StopCoroutine(loopRoutine);
-        }
 
-        if (initialWayPointRoutine != null)
-        {
-            StopCoroutine(initialWayPointRoutine);
-        }
-        initialWayPointRoutine = StartCoroutine(InitialWayPointRoutine());
     }
 
-    private IEnumerator MoveForward(float distance)
-    {
-        Vector3 start = rb.position;
 
-        // Use world-space up direction normalized
-        Vector3 worldUp = transform.up.normalized;
 
-        Vector3 end = start + worldUp * distance;
 
-        float travelTime = distance / moveSpeed;
-        float elapsed = 0f;
-
-        while (elapsed < travelTime)
-        {
-            if (interrupted)
-            {
-                yield break;
-            }
-            float t = elapsed / travelTime;
-            Vector3 newPos = Vector3.Lerp(start, end, t);
-            rb.MovePosition(newPos);
-            elapsed += Time.fixedDeltaTime;
-            yield return new WaitForFixedUpdate();
-        }
-
-        rb.MovePosition(end);
-    }
-
-    private IEnumerator ReverseDirection()
-    {
-        Vector3 newDir = -transform.up;
-        EnemyServerSpawnerManager.Instance.StartRotation(this, newDir);
-        yield return StartCoroutine(RotateTo(newDir));
-        EnemyServerSpawnerManager.Instance.FinishRotation(this, newDir);
-        interrupted = false;
-        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, 2);
-        yield return StartCoroutine(MoveForward(2));
-        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
-        yield return new WaitForFixedUpdate();
-        loopRoutine = StartCoroutine(EnemyLoop());
-        
-    }
-
-    private IEnumerator RotateTo(Vector3 direction)
-    {
-        // Ensure we stay in 2D
-        direction.z = 0f;
-        direction.Normalize();
-
-        // Get current and target angles, correcting for "up" axis
-        float startAngle = transform.eulerAngles.z;
-        float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f; // subtract 90 because up is forward
-
-        // Find the shortest rotation delta
-        float delta = Mathf.DeltaAngle(startAngle, targetAngle);
-
-        if (Mathf.Abs(delta) < 2f)
-        {
-            transform.rotation = Quaternion.Euler(0f, 0f, targetAngle);
-            yield break;
-        }
-
-        float duration = Mathf.Abs(delta) / rotationSpeed;
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            float t = elapsed / duration;
-            float currentAngle = Mathf.LerpAngle(startAngle, targetAngle, t);
-            transform.rotation = Quaternion.Euler(0f, 0f, currentAngle);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        transform.rotation = Quaternion.Euler(0f, 0f, targetAngle);
-        yield return new WaitForFixedUpdate();
-    }
 
     private Vector3 DirectionFromAngle(float angleDeg)
     {
@@ -178,122 +315,7 @@ public class TankEnemy : Enemy, IEnemy
         return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0f);
     }
 
-    private IEnumerator EnemyLoop()
-    {
-        // small delay to let players fully spawn
-        interrupted = false;
-        yield return new WaitForSeconds(0.1f);
-        int enemyId = gameObject.GetInstanceID();
-        while (active)
-        {
-            // 1. Rotate toward nearest player
-            int turn = Random.value < 0.5f ? -90 : 90;   // randomly choose +90 or -90 degrees
-            Vector3 newDir = Quaternion.Euler(0, 0, turn) * transform.up;
-            EnemyServerSpawnerManager.Instance.StartRotation(this, newDir);
-            yield return StartCoroutine(RotateTo(newDir));
-            EnemyServerSpawnerManager.Instance.FinishRotation(this, newDir);
-            yield return new WaitForFixedUpdate();
-            // 2. Move forward (in "up" direction) a few units
-            Vector3 start = rb.position;
-            Vector3 worldUp = transform.up.normalized;
-            Vector3 end = start + worldUp * moveDistance;
-            EnemyServerSpawnerManager.Instance.StartEnemyMove(this, moveDistance);
 
-            yield return StartCoroutine(MoveForward(moveDistance));
-            EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
-            yield return new WaitForFixedUpdate();
-            Vector3 bulletTrajectory = DirectionFromAngle(0);
-            EnemyServerSpawnerManager.Instance.StartEnemyAim(this, bulletTrajectory);
-            yield return StartCoroutine(turret.AimAt(bulletTrajectory));
-            EnemyServerSpawnerManager.Instance.FinishEnemyAim(this, bulletTrajectory);
-            BulletServerManager.Instance.SpawnEnemyBulletOnServer(turret.transform.position, bulletTrajectory);
-            bulletTrajectory = DirectionFromAngle(45);
-            EnemyServerSpawnerManager.Instance.StartEnemyAim(this, bulletTrajectory);
-            yield return StartCoroutine(turret.AimAt(DirectionFromAngle(45)));
-            EnemyServerSpawnerManager.Instance.FinishEnemyAim(this, bulletTrajectory);
-            BulletServerManager.Instance.SpawnEnemyBulletOnServer(turret.transform.position, bulletTrajectory);
-            bulletTrajectory = DirectionFromAngle(90);
-            EnemyServerSpawnerManager.Instance.StartEnemyAim(this, bulletTrajectory);
-            yield return StartCoroutine(turret.AimAt(DirectionFromAngle(90)));
-            EnemyServerSpawnerManager.Instance.FinishEnemyAim(this, bulletTrajectory);
-            BulletServerManager.Instance.SpawnEnemyBulletOnServer(turret.transform.position, bulletTrajectory);
-            bulletTrajectory = DirectionFromAngle(135);
-            EnemyServerSpawnerManager.Instance.StartEnemyAim(this, bulletTrajectory);
-            yield return StartCoroutine(turret.AimAt(DirectionFromAngle(135)));
-            EnemyServerSpawnerManager.Instance.FinishEnemyAim(this, bulletTrajectory);
-            BulletServerManager.Instance.SpawnEnemyBulletOnServer(turret.transform.position, bulletTrajectory);
-            bulletTrajectory = DirectionFromAngle(180);
-            EnemyServerSpawnerManager.Instance.StartEnemyAim(this, bulletTrajectory);
-            yield return StartCoroutine(turret.AimAt(DirectionFromAngle(180)));
-            EnemyServerSpawnerManager.Instance.FinishEnemyAim(this, bulletTrajectory);
-            BulletServerManager.Instance.SpawnEnemyBulletOnServer(turret.transform.position, bulletTrajectory);
-            bulletTrajectory = DirectionFromAngle(225);
-            EnemyServerSpawnerManager.Instance.StartEnemyAim(this, bulletTrajectory);
-            yield return StartCoroutine(turret.AimAt(DirectionFromAngle(225)));
-            EnemyServerSpawnerManager.Instance.FinishEnemyAim(this, bulletTrajectory);
-            BulletServerManager.Instance.SpawnEnemyBulletOnServer(turret.transform.position, bulletTrajectory);
-            bulletTrajectory = DirectionFromAngle(0);
-            EnemyServerSpawnerManager.Instance.StartEnemyAim(this, bulletTrajectory);
-            yield return StartCoroutine(turret.AimAt(DirectionFromAngle(0)));
-            EnemyServerSpawnerManager.Instance.FinishEnemyAim(this, bulletTrajectory);
-            BulletServerManager.Instance.SpawnEnemyBulletOnServer(turret.transform.position, bulletTrajectory);
-
-
-
-            // 3. Repeat until enemy dies or is disabled
-        }
-    }
-
-    private IEnumerator InitialWayPointRoutine()
-    {
-        yield return null;
-        duringInitial = true;
-        interrupted = false;
-        Vector3 start = rb.position;
-        Vector3 directionToWaypoint = (initialWayPoint - start).normalized;
- 
-        EnemyServerSpawnerManager.Instance.StartRotation(this, directionToWaypoint);
-        yield return StartCoroutine(RotateTo(directionToWaypoint));
-        EnemyServerSpawnerManager.Instance.FinishRotation(this, directionToWaypoint);
-        yield return new WaitForFixedUpdate();
-        if (interrupted) yield break;
-        
-        
-        float initialDistance = Vector3.Distance(start, initialWayPoint);
-        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, initialDistance);
-        yield return StartCoroutine(MoveForward(initialDistance));
-
-        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
-        yield return new WaitForFixedUpdate();
-        if (loopRoutine != null)
-        {
-            StopCoroutine(loopRoutine);
-        }
-        Vector3 fwd = transform.up;
-        Vector3 closestDir = Vector3.up;
-        float maxDot = -Mathf.Infinity;
-
-        foreach (var dir in cardinalDirs)
-        {
-            float d = Vector3.Dot(fwd, dir);
-            if (d > maxDot)
-            {
-                maxDot = d;
-                closestDir = dir;
-            }
-        }
-
-        EnemyServerSpawnerManager.Instance.StartRotation(this, closestDir);
-        yield return StartCoroutine(RotateTo(closestDir));
-        EnemyServerSpawnerManager.Instance.FinishRotation(this, closestDir);
-
-        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, 1.25f);
-        yield return StartCoroutine(MoveForward(1.25f));
-        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
-
-        loopRoutine = StartCoroutine(EnemyLoop());
-        duringInitial = false;
-    }
 
     public override void TakeDamage()
     {

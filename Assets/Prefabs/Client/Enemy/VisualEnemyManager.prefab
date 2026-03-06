@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6330952136512551388}
   - component: {fileID: 7136935380034976178}
+  - component: {fileID: 2983285014230827661}
   m_Layer: 0
   m_Name: VisualEnemyManager
   m_TagString: Untagged
@@ -48,3 +49,15 @@ MonoBehaviour:
   visualEnemyFastPoolPrefab: {fileID: 277294891111770672, guid: 027bee1502f732b45ae2fb89fc8fb73e, type: 3}
   visualEnemyShrapnelPoolPrefab: {fileID: 277294891111770672, guid: 43fab939f93a9014882e68c6c3a430b9, type: 3}
   visualEnemyTankPoolPrefab: {fileID: 277294891111770672, guid: 4f0e6cbcd2c8e5747a8daaf7680a1ef8, type: 3}
+--- !u!114 &2983285014230827661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5237182072349250902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e112c3b7c13640d4884f16f1300057b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

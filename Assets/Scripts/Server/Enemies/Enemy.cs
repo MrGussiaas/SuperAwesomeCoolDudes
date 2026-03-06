@@ -2,7 +2,7 @@ using UnityEngine;
 using Mirror;
 
 
-public class Enemy : NetworkBehaviour, IDamagable
+public class Enemy : NetworkBehaviour, IDamagable, IEnemy
 {
     protected const string PLAYER_TAG = "Player";
     protected enum EnemyState { Deactive, InitialWayPoint, Spawning, Idle, Moving }
@@ -39,7 +39,7 @@ public class Enemy : NetworkBehaviour, IDamagable
 
     protected Vector2 startPosition;
 
-        private const string NON_COLLISION_LAYER = "NonCollision";
+        protected const string NON_COLLISION_LAYER = "NonCollision";
     static Vector3 ZERO_VECTOR = Vector3.zero;
     private const string ENEMY_LAYER = "EnemyHitBox";
     private Vector3 GetSlightlyOffsetDirection(Vector3 originalDir, float maxOffsetDeg = 25f)
@@ -80,9 +80,9 @@ public class Enemy : NetworkBehaviour, IDamagable
                 distance = RecalibrateDistance();
                 currentState = EnemyState.Moving;
                 startPosition = rb.position;
-                EnemyServerSpawnerManager.Instance.StartEnemyMove(this, direction, distance);
-
-                DoNextStepLive();
+                //EnemyServerSpawnerManager.Instance.StartEnemyMove(this, direction, distance);
+                DoInitialStepAfterRecalibration();
+                //DoNextStepLive();
                 return;
 
             }
@@ -94,8 +94,17 @@ public class Enemy : NetworkBehaviour, IDamagable
             }
         }
     }
+    
+
+    protected virtual void DoInitialStepAfterRecalibration()
+    {
+        
+        EnemyServerSpawnerManager.Instance.StartEnemyMove(this, direction, distance);
+        DoNextStepLive();
+    }
 
     protected virtual void ArrivedAtDestination(){}
+
 
     protected virtual Vector2 RecalibrateDirection()
     {
@@ -112,7 +121,6 @@ public class Enemy : NetworkBehaviour, IDamagable
     protected virtual void DoNextStepToWayPoint()
     {   
  
-        Debug.Log("server fixed update");
         // Normalized direction provided by server AI logic
         Vector2 dirNorm = direction.normalized;
 
@@ -152,7 +160,7 @@ public class Enemy : NetworkBehaviour, IDamagable
 
         rb.MovePosition(newPos);
 
-        internalTime += Time.fixedDeltaTime;
+        internalTime += Time.deltaTime;
     }
 
 
@@ -229,4 +237,16 @@ public class Enemy : NetworkBehaviour, IDamagable
     }
 
     public virtual void TakeDamage() { }
+
+    public void DoWallBump(Vector3 bumpedPosition, Vector2 contactVector)
+    {
+        currentState = EnemyState.Idle;
+        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
+        ArrivedAtDestination();
+    }
+
+    public void ExitWallBump(Vector3 bumpedPosition, Vector2 contactVector)
+    {
+        return;
+    }
 }

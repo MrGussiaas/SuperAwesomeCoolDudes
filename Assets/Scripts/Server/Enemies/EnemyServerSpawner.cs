@@ -7,6 +7,7 @@ public class EnemyServerSpawner : NetworkBehaviour
 {
 
     private readonly Dictionary<int, Enemy> activeEnemies = new();
+    
 
     [SerializeField]
     private GameObject enemyServerPoolPrefab;
@@ -87,8 +88,9 @@ public class EnemyServerSpawner : NetworkBehaviour
     public void ReleaseEnemy(Enemy enemy)
     {
         int instanceId = enemy.gameObject.GetInstanceID();
+    
         DestroyEnemy(instanceId);
-        RpcDestroyVisualEnemy(instanceId);
+        
     }
 
 
@@ -122,7 +124,7 @@ public class EnemyServerSpawner : NetworkBehaviour
         {
             return;
         }
-        RpcDestroyVisualEnemy(enemyId);
+        //RpcDestroyVisualEnemy(enemyId, Vector3.zero);
         activeEnemyCount--;
         if (activeEnemies.TryGetValue(enemyId, out var vb))
         {
@@ -137,17 +139,23 @@ public class EnemyServerSpawner : NetworkBehaviour
     }
 
     [ClientRpc]
-    void RpcDestroyVisualEnemy(int enemyId)
+    void RpcDestroyVisualEnemy(int enemyId, Vector3 enemyPosition)
     {
-        VisualEnemyManager.Instance.DestroyVisualEnemy(enemyId);
+        bool existed = VisualEnemyManager.Instance.DestroyVisualEnemy(enemyId);
+        
+        IVisualExplosion explosion = VisualExplosionManager.Instance.GetPooledExplosion();
+        explosion.StartExplosion(enemyPosition);
     }
 
     [ClientRpc]
     public void RpcUpdateEnemyVisual(int id, Vector3 dir)
     {
         var vb = VisualEnemyManager.Instance.GetEnemyById(id);
-        if (vb != null)
+        if (vb != null){
             vb.SetTargetDirection(dir);
+        }
+        
+
     }
 
 

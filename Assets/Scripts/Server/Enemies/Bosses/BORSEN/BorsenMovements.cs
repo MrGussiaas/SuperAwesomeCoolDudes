@@ -101,7 +101,7 @@ public class BorsenMovements : NetworkBehaviour
     {
         if (isServer)
         {
-            Debug.Log("Server Orb Placement");
+  
         }
         else
         {

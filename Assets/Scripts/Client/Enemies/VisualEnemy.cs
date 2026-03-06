@@ -38,12 +38,14 @@ public class VisualEnemy : MonoBehaviour
 
     public EnemyType GetEnemyType { get {return enemyType;}}
 
-    public void FixedUpdate()
+    public void Update()
     {
         if(arrived) return;
         CalculateNextStep();
 
     }
+
+    public virtual void Begin(){}
 
     public Vector3 CalculateNextStep()
     {
@@ -61,7 +63,7 @@ public class VisualEnemy : MonoBehaviour
         float t = internalClock / travelTime;
         Vector3 newPos = Vector3.Lerp(startPosition, end, t);
         transform.position = newPos;
-        internalClock += Time.fixedDeltaTime;
+        internalClock += Time.deltaTime;
    
         return newPos;
     }
@@ -77,6 +79,7 @@ public class VisualEnemy : MonoBehaviour
     }
 
     public virtual void RotateTo(Vector2 dir){
+
         if (rotateTowards != null)
         {
             StopCoroutine(rotateTowards);
@@ -109,7 +112,6 @@ public class VisualEnemy : MonoBehaviour
 
     public virtual void MoveForward(Vector3 startPosition, Vector2 direction, float distance)
     {
-        Debug.Log("Moving visual forward");
         transform.position = startPosition;
         MoveForward(direction, distance);
     }
@@ -164,7 +166,7 @@ public class VisualEnemy : MonoBehaviour
                 float t = elapsed / travelTime;
                 Vector3 newPos = Vector3.Lerp(start, end, t);
                 transform.position = newPos;
-                elapsed += Time.fixedDeltaTime;
+                elapsed += Time.deltaTime;
                 yield return FIXED_UPDATE;
             }
 
@@ -190,7 +192,7 @@ public class VisualEnemy : MonoBehaviour
                 float t = elapsed / travelTime;
                 Vector3 newPos = Vector3.Lerp(start, end, t);
                 transform.position = newPos;
-                elapsed += Time.fixedDeltaTime;
+                elapsed += Time.deltaTime;
                 yield return FIXED_UPDATE;
             }
 

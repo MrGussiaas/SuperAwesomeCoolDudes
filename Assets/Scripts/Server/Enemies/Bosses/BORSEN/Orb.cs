@@ -9,6 +9,7 @@ public class Orb  : MonoBehaviour, IDamagable
     private Vector3 startPosition;
     private const float ANIMATION_FRAMES = 120;
     private const int ANIMATION_FPS = 60;
+    private ParticleSystem ps;
 
     private const int BASE_HEALTH = 30;
     private int currentHealth = BASE_HEALTH;
@@ -29,6 +30,7 @@ public class Orb  : MonoBehaviour, IDamagable
         startPosition = transform.localPosition;
         sr = GetComponent<SpriteRenderer>();
         bc = GetComponent<BoxCollider2D>();
+        ps = GetComponent<ParticleSystem>();
     }
 
     // Update is called once per frame
@@ -57,6 +59,7 @@ public class Orb  : MonoBehaviour, IDamagable
         currentHealth = BASE_HEALTH;
         sr.enabled = true;
         bc.enabled = true;
+        ps.Play();
     }
 
     public void BlowUpOrb()
@@ -76,6 +79,7 @@ public class Orb  : MonoBehaviour, IDamagable
         transform.localPosition = startPosition;
         sr.enabled = false;
         bc.enabled = false;
+        ps.Stop();
     }
 
     public void SyncMidPoint()

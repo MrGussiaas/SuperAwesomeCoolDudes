@@ -60,7 +60,9 @@ private string GetDirectionTrigger(Vector2 dir)
         Vector3 startPosition = transform.position;
         Vector3 endPosition = startPosition + (Vector3)(direction.normalized * distance);
         sr.flipX = NeedsFlip(startPosition, endPosition);
-        anim?.SetTrigger(trigger);
+        if(anim != null){
+            anim?.SetTrigger(trigger);
+        }
         base.MoveForward( direction,  distance);
     }
 

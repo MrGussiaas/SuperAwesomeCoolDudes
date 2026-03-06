@@ -35,7 +35,7 @@ public class Collectible : NetworkBehaviour
     {
         float activeSeconds = MASTER_DELAY + Random.value;
         waitForSecondsSem = new WaitForSeconds(activeSeconds / 2);
-        Debug.Log("Initializing the collectible isServer: " + isServer);
+  
         // server runs coroutine locally
         if (isServer)
         {

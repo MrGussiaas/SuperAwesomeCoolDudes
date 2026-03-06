@@ -137,7 +137,7 @@ public class RoomController : NetworkBehaviour
         HandleGateOpen(directionEnteringFrom, GateOpenReason.PlayerSpawned);
         DisablePlayerControls(false, players);
         Vector3 teleportPosition = getEntranceSpawnForPlayer(directionEnteringFrom);
-        Debug.Log("Lerping Player to start: " + directionEnteringFrom + " teleport: " + teleportPosition);
+
         Vector3 wayPointPosition = getEntranceFinishForPlayer(directionEnteringFrom);
         spawnPlayersTo(players, teleportPosition);
         TriggerEntranceAnimation(directionEnteringFrom, players);

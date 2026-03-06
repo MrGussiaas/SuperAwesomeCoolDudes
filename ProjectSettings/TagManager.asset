@@ -17,6 +17,8 @@ TagManager:
   - RightOrb
   - LeftOrb
   - Borsen
+  - IpAddress
+  - Port
   layers:
   - Default
   - TransparentFX
@@ -30,7 +32,7 @@ TagManager:
   - EnemyHitBox
   - EnemyParent
   - Walls
-  - 
+  - Collectible
   - 
   - 
   - 

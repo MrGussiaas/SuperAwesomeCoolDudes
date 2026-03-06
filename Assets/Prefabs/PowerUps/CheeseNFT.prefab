@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2472919596671885683}
   - component: {fileID: -2867558419872289071}
   - component: {fileID: 524572594040103074}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: CheeseNFT
   m_TagString: Collectible
   m_Icon: {fileID: 0}

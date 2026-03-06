@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6237418528091576612}
   - component: {fileID: 6201315363090514781}
   - component: {fileID: 3959500418740559999}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: SpreaderPowerUp
   m_TagString: PowerUp
   m_Icon: {fileID: 0}
@@ -77,12 +77,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 930036302, guid: 10222e29afd00a344952335179808838, type: 3}
+  m_Sprite: {fileID: -90427853, guid: 10222e29afd00a344952335179808838, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.36, y: 0.36}
+  m_Size: {x: 0.64, y: 0.64}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -125,7 +125,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 0.64, y: 0.64}
-    newSize: {x: 0.36, y: 0.36}
+    newSize: {x: 0.64, y: 0.64}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0

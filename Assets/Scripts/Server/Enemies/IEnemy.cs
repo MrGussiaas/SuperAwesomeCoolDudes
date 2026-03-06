@@ -5,4 +5,6 @@ using UnityEngine;
 public interface IEnemy
 {
     public void DoWallBump(Vector3 bumpedPosition, Vector2 contactVector);
+
+    public void ExitWallBump(Vector3 bumpedPosition, Vector2 contactVector);
 }

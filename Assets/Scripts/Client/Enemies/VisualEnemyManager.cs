@@ -67,12 +67,13 @@ public class VisualEnemyManager : MonoBehaviour
             activeVisuals.Add(netId, vb);
     }
 
-    public void DestroyVisualEnemy(int netId)
+    public bool DestroyVisualEnemy(int netId)
     {
         if(activeVisuals.TryGetValue(netId, out var vb)){
             DestroyVisualEnemy(vb.GetEnemyType,  netId);
-            
+            return true;
         }
+        return false;
             
     }
 
@@ -83,7 +84,6 @@ public class VisualEnemyManager : MonoBehaviour
         {
             case EnemyType.Slow :
                 {
-                    Debug.Log("Destroying slow enemy visual");
                     PerformRelease(visualEnemyPool, vb);
                     activeVisuals.Remove(netId);
                     break;
@@ -127,20 +127,27 @@ public class VisualEnemyManager : MonoBehaviour
         switch (type){
         
             case EnemyType.Slow:
-                return visualEnemyPool.Get();
-                break;
+                VisualEnemy ve = visualEnemyPool.Get();
+                ve.Begin();
+                return ve;
+                
             case EnemyType.Fast:
-                return visualEnemyFastPool.Get();
-                break;
+                ve = visualEnemyFastPool.Get();
+                ve.Begin();
+                return ve;
             case EnemyType.Shrapnel:
-                return visualEnemyShrapnelPool.Get();
-                break;
+                ve = visualEnemyShrapnelPool.Get();
+                ve.Begin();
+                return ve;
+                
             case EnemyType.TankEnemy:
-                return visualEnemyTankPool.Get();
-                break;
+                ve = visualEnemyTankPool.Get();
+                ve.Begin();
+                return ve;
             default :
-                return visualEnemyPool.Get();
-                break;
+                ve = visualEnemyPool.Get();
+                ve.Begin();
+                return ve;
         }
         
     }

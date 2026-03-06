@@ -8,7 +8,7 @@ public class PlayerStates : NetworkBehaviour
     private bool isInvincible = false;
     private SpriteRenderer sr;
 
-    private const float I_FRAME_TIME = 1f;
+    private const float I_FRAME_TIME = 5f;
 
     private void Start()
     {

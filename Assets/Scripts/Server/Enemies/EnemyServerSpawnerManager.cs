@@ -1,8 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using Mirror;
-using Mirror.Examples.Billiards;
 using UnityEngine;
 
 public class EnemyServerSpawnerManager : MonoBehaviour
@@ -10,7 +9,10 @@ public class EnemyServerSpawnerManager : MonoBehaviour
     [SerializeField]
     private List<GameObject> spawnerPrefabs;
 
-    private Dictionary<int, List<EnemyMovementSnapshot>> pendingMovementsBySpawner = new();
+    private Dictionary<int, List<EnemyCommand>> pendingMovementsBySpawner = new();
+
+    private readonly List<EnemyCommand> serverCommandBuffer = new List<EnemyCommand>(128);
+    private NetworkWriterPooled writer = NetworkWriterPool.Get();
 
     public static EnemyServerSpawnerManager Instance { get; private set; }
 
@@ -86,7 +88,7 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         int remainder = slot.enemyCount % spawnerCount;
         for(int i = 0, n = spawnerCount; i < n; i++)
         {
-            int value = Random.Range(0, 4);
+            int value = UnityEngine.Random.Range(0, 4);
             int spawnerIndex = GetNextAvailableSpawner(usedSpawners, value);
             
             int bit = 1 << spawnerIndex;
@@ -182,6 +184,8 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         // Get the spawner ID from the enemy
         int spawnerId = enemy.SpawnerId;
         // Try to find the matching spawner in the dictionary
+        AddEnemyCommand(enemy, EnemyCommandType.DESTROY, enemy.transform.position, Vector3.zero, 0);
+
         if (enemySpawners.TryGetValue(spawnerId, out EnemyServerSpawner spawner))
         {
             spawner.ReleaseEnemy(enemy); // or whatever your release logic is
@@ -197,11 +201,8 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         // Get the spawner ID from the enemy
         int spawnerId = enemy.SpawnerId;
 
-        // Try to find the matching spawner in the dictionary
-        if (enemySpawners.TryGetValue(spawnerId, out EnemyServerSpawner spawner))
-        {
-            spawner.RpcStartEnemyRotation(enemy.gameObject.GetInstanceID(), initialWayPoint); // or whatever your release logic is
-        }
+        AddEnemyCommand(enemy, EnemyCommandType.START_ROTATION, enemy.transform.position, initialWayPoint, 0);
+
     }
 
     public void FinishRotation(Enemy enemy, Vector3 initialWayPoint)
@@ -209,14 +210,8 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         if (enemy == null)
             return;
 
-        // Get the spawner ID from the enemy
-        int spawnerId = enemy.SpawnerId;
+        AddEnemyCommand(enemy, EnemyCommandType.FINISH_ROTATION, enemy.transform.position, initialWayPoint, 0);
 
-        // Try to find the matching spawner in the dictionary
-        if (enemySpawners.TryGetValue(spawnerId, out EnemyServerSpawner spawner))
-        {
-            spawner.RpcFinishEnemyRotation(enemy.gameObject.GetInstanceID(), initialWayPoint); // or whatever your release logic is
-        }
     }
 
     public void StartEnemyMove(Enemy enemy, float distance)
@@ -226,54 +221,51 @@ public class EnemyServerSpawnerManager : MonoBehaviour
 
         // Get the spawner ID from the enemy
         int spawnerId = enemy.SpawnerId;
-
-        // Try to find the matching spawner in the dictionary
-        if (enemySpawners.TryGetValue(spawnerId, out EnemyServerSpawner spawner))
-        {
-            spawner.RpcStartEnemyMove(enemy.gameObject.GetInstanceID(), distance); // or whatever your release logic is
-        }
+        AddEnemyCommand(enemy, EnemyCommandType.MOVE_FORWARD_NO_DIR, enemy.transform.position, Vector3.zero, distance);
     }
 
-    public void AddEnemyMovement(Enemy enemy, Vector3 position, Vector3 direction, float distance)
+    public void AddEnemyCommand(Enemy enemy, EnemyCommandType enemyCommandType, Vector3 position, Vector3 direction, float distance)
     {
         if (enemy == null) return;
-
         int spawnerId = enemy.SpawnerId;
 
         if (!pendingMovementsBySpawner.TryGetValue(spawnerId, out var list))
         {
-            list = new List<EnemyMovementSnapshot>();
+            list = new List<EnemyCommand>(128);
             pendingMovementsBySpawner[spawnerId] = list;
         }
 
-        list.Add(new EnemyMovementSnapshot
+        list.Add(new EnemyCommand
         {
             enemyId = enemy.gameObject.GetInstanceID(),
             spawnerId = enemy.SpawnerId,
             position = position,
             direction = direction,
-            distance = distance
+            distance = distance,
+            commandType = enemyCommandType
         });
     }
 
-    private void LateUpdate()
+     private void LateUpdate()
     {
+        if (!NetworkServer.active) return;
+
+        serverCommandBuffer.Clear();
+
         foreach (var kvp in pendingMovementsBySpawner)
         {
-            int spawnerId = kvp.Key;
-            
-            List<EnemyMovementSnapshot> snapshots = kvp.Value;
-
-            if (enemySpawners.TryGetValue(spawnerId, out var spawner) && snapshots.Count > 0)
-            {
-                Debug.Log("sending rpc array to spawner: " + spawnerId);
-                // Send one RPC per spawner with all its enemies
-                spawner.RpcSendEnemyMovements(snapshots.ToArray());
-            }
+            serverCommandBuffer.AddRange(kvp.Value);
+            kvp.Value.Clear();
         }
 
-        // Clear everything for next frame
-        pendingMovementsBySpawner.Clear();
+        if (serverCommandBuffer.Count > 0)
+        {
+            var msg = new EnemyBatchMessage
+            {
+                tempCommands = serverCommandBuffer
+            };
+            NetworkServer.SendToAll(msg);
+        }
     }
 
 
@@ -285,12 +277,8 @@ public class EnemyServerSpawnerManager : MonoBehaviour
 
         // Get the spawner ID from the enemy
         int spawnerId = enemy.SpawnerId;
+        AddEnemyCommand(enemy, EnemyCommandType.MOVE_FORWARD, enemy.transform.position, direction, distance);
 
-        // Try to find the matching spawner in the dictionary
-        if (enemySpawners.TryGetValue(spawnerId, out EnemyServerSpawner spawner))
-        {
-            spawner.RpcStartEnemyMove(enemy.gameObject.GetInstanceID(), direction, distance); // or whatever your release logic is
-        }
     }
 
     public void FinishEnemyMove(Enemy enemy, Vector3 finalPoint, bool movementCancelled)
@@ -301,10 +289,19 @@ public class EnemyServerSpawnerManager : MonoBehaviour
         // Get the spawner ID from the enemy
         int spawnerId = enemy.SpawnerId;
 
-        // Try to find the matching spawner in the dictionary
+        if (movementCancelled)
+        {
+            AddEnemyCommand(enemy, EnemyCommandType.FINISH_MOVEMENT_CANCELLED, finalPoint, Vector3.zero, 0); 
+        }
+        else
+        {
+          AddEnemyCommand(enemy, EnemyCommandType.FINISH_MOVEMENT, finalPoint, Vector3.zero, 0);  
+        }
+         
+
         if (enemySpawners.TryGetValue(spawnerId, out EnemyServerSpawner spawner))
         {
-            spawner.RpcFinishEnemyMove(enemy.gameObject.GetInstanceID(), finalPoint, movementCancelled); // or whatever your release logic is
+            //spawner.RpcFinishEnemyMove(enemy.gameObject.GetInstanceID(), finalPoint, movementCancelled); // or whatever your release logic is
         }
     }
 

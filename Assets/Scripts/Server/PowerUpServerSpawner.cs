@@ -123,7 +123,6 @@ public class PowerUpServerSpawner : NetworkBehaviour
 
     private IEnumerator PowerUpSpawnLoop()
     {
-        Debug.Log("Power up spawner loop begun");
         while(true){
             yield return new WaitForSeconds(spawnDelay);
             int powerUpCounts = powerUpRegistry.Count;
@@ -137,7 +136,6 @@ public class PowerUpServerSpawner : NetworkBehaviour
                 }
                 
                 PowerUp powerUp = q.Dequeue();
-                Debug.Log("Spawning power up of type: " + powerUp.PowerUpType);
                 SpawnPowerUp(powerUp);
             }
         }

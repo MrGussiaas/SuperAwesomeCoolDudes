@@ -67,9 +67,18 @@ public class PlayerCollisions : NetworkBehaviour
 
     public void KillPlayer()
     {
+        if(isServer){
+            SendDeathAnimationRPC(transform.position);
+        }
         RoomController.ActiveRoom.RespawnPlayer(transform.root.gameObject);
         //this.gameObject.SetActive(false);
         
+    }
+
+    [ClientRpc]
+    public void SendDeathAnimationRPC(Vector3 position)
+    {
+        VisualExplosionManager.Instance.GetPooledPlayerBlood().StartExplosion(position);
     }
     
 
@@ -89,7 +98,7 @@ public class PlayerCollisions : NetworkBehaviour
             Collectible collectibe = wall.GetComponent<Collectible>();
             GameEvents.CollectibleRemovedFromRoom(collectibe);
         }
-        if ( !playerStates.IsInvincible && wall.CompareTag(ENEMY) || wall.CompareTag(ENEMY_BULLET) || wall.CompareTag(BORSEN))
+        if ( !playerStates.IsInvincible && (wall.CompareTag(ENEMY) || wall.CompareTag(ENEMY_BULLET) || wall.CompareTag(BORSEN)))
         {
             KillPlayer();
         }
