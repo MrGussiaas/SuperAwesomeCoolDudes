@@ -214,6 +214,24 @@ public class EnemyServerSpawnerManager : MonoBehaviour
 
     }
 
+    public void ActivateWeapon(Enemy enemy)
+    {
+        if (enemy == null)
+            return;
+
+        AddEnemyCommand(enemy, EnemyCommandType.ACTIVATE_WEAPON, enemy.transform.position, Vector2.zero, 0);
+
+    }
+
+    public void DeactivateWeapon(Enemy enemy)
+    {
+        if (enemy == null)
+            return;
+
+        AddEnemyCommand(enemy, EnemyCommandType.DE_ACTIVATE_WEAPON, enemy.transform.position, Vector2.zero, 0);
+
+    }
+
     public void StartEnemyMove(Enemy enemy, float distance)
     {
         if (enemy == null)

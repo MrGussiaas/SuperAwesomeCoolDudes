@@ -210,6 +210,16 @@ public class VisualEnemy : MonoBehaviour
 
     }
 
+    public virtual void ActivateWeapon()
+    {
+        
+    }
+
+    public virtual void DeActivateWeapon()
+    {
+        
+    }
+
     public virtual void FinishRotation(Vector3 dir){
         if(rotateTowards != null){
             StopCoroutine(rotateTowards);

@@ -10,5 +10,7 @@ public enum EnemyCommandType : byte
     FINISH_MOVEMENT_CANCELLED,
     START_ROTATION,
     FINISH_ROTATION,
+    ACTIVATE_WEAPON,
+    DE_ACTIVATE_WEAPON,
     DESTROY
 }

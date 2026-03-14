@@ -35,6 +35,9 @@ public class ConnectionHandler : MonoBehaviour
 
     public void ConnectHostClient()
     {
+        #if UNITY_WEBGL && !UNITY_EDITOR
+           Mirror.NetworkServer.dontListen = true;
+        #endif
         ApplySettings();
         manager.StartHost();
         gameObject.SetActive(false);

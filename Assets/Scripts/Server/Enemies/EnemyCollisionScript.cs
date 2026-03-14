@@ -36,39 +36,8 @@ public class EnemyCollisionScript : NetworkBehaviour
         halfHeight = boxCollider.size.y / 2;
     }
 
-    [ServerCallback]
-    private void FixedUpdate()
-    {
-        if (!needsCorrection) return;
 
-        rb.MovePosition(rb.position + correction);
-
-        needsCorrection = false;
-        correction = Vector3.zero;
-        
-    }
-
-    [ServerCallback]
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-       // Debug.Log("Enemy collided with: " + collision.collider.tag);
-        if (!collision.collider.CompareTag("Wall")) return;
-        // Take the average normal of contacts
-       // needsCorrection = true;
   
-        if (iEnemy != null)
-            iEnemy.DoWallBump(rb.position, Vector3.zero);
-    }
-
-    [ServerCallback]
-    void OnCollisionExit2D(Collision2D collision)
-    {
-       // Debug.Log("Enemy collided with: " + collision.collider.tag);
-        if (!collision.collider.CompareTag("Wall")) return;
-         if (iEnemy != null)
-            iEnemy.ExitWallBump(rb.position, Vector3.zero);
-
-    }
 
 
     

@@ -46,7 +46,9 @@ public class TankEnemy : Enemy, IEnemy
     private float endRotation;
     private float rotationDuration;
 
-    private bool ignoreCollisionsTemporarily = false;
+    [SerializeField]
+    private bool lockRotation;
+
 
 
 
@@ -58,43 +60,19 @@ public class TankEnemy : Enemy, IEnemy
         }
         internalState = internalStates.SHOOTING;
         EnemyServerSpawnerManager.Instance.StartEnemyAim(this, Vector3.zero);
-       turret.StartFull360();
+        turret.StartFull360();
        // internalState = internalStates.ROTATING;
     }
 
-    public void ExitWallBump(Vector3 bumpedPosition, Vector2 bumpNormal)
-    {
-        
-        if(internalState != internalStates.ROTATING)
-        {
-            ignoreCollisionsTemporarily = false;
-        }
-    }
 
-    public void DoWallBump(Vector3 bumpedPosition, Vector2 bumpNormal)
-    {
-        if(ignoreCollisionsTemporarily)
-        {
-            return;
-        }
 
-        ignoreCollisionsTemporarily = true;
+    public override void DoWallBump()
+    {
         internalState = internalStates.BUMPED_WALL;
         internalTick = 0;
         
-        base.DoWallBump(bumpedPosition, bumpNormal);
-       /* if (interrupted)
-        {
-            return;
-        }
-        EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, bumpedPosition, false);
-        interrupted = true;
-        if(loopRoutine != null)
-        {
-            StopCoroutine(loopRoutine);
-            loopRoutine = null;
-        }
-        //StartCoroutine(ReverseDirection()); */
+        base.DoWallBump();
+
     }
 
     protected override void DoNextStepLive()
@@ -106,6 +84,31 @@ public class TankEnemy : Enemy, IEnemy
         {
             DoRotationStep();
         }
+    }
+
+    protected  void InitializeRotation(Vector2 newRotationVector)
+    {
+        RecalibrateInternalRotationVars(newRotationVector);
+        internalState = internalStates.ROTATING;
+        internalTick = 0;
+    }
+
+    protected Vector2 GetClosestCardinalDirection()
+    {
+            Vector3 fwd = transform.up;
+            Vector3 closestDir = Vector3.up;
+            float maxDot = -Mathf.Infinity;
+
+            foreach (var dir in cardinalDirs)
+            {
+                float d = Vector3.Dot(fwd, dir);
+                if (d > maxDot)
+                {
+                    maxDot = d;
+                    closestDir = dir;
+                }
+            }
+        return closestDir;
     }
 
     protected override Vector2 RecalibrateDirection()
@@ -125,20 +128,8 @@ public class TankEnemy : Enemy, IEnemy
         else if(internalState == internalStates.FINISHED_WAY_POINT_ROTATION)
         {
             
-            Vector3 fwd = transform.up;
-            Vector3 closestDir = Vector3.up;
-            float maxDot = -Mathf.Infinity;
 
-            foreach (var dir in cardinalDirs)
-            {
-                float d = Vector3.Dot(fwd, dir);
-                if (d > maxDot)
-                {
-                    maxDot = d;
-                    closestDir = dir;
-                }
-            }
-            
+            Vector2 closestDir = GetClosestCardinalDirection();
             EnemyServerSpawnerManager.Instance.StartRotation(this, closestDir);
             RecalibrateInternalRotationVars(closestDir);
             internalState = internalStates.ROTATING;
@@ -209,7 +200,7 @@ public class TankEnemy : Enemy, IEnemy
         
     }
 
-    private Vector3 RecalibrateInternalRotationVars(Vector3 rotationPoint)
+    private  Vector3 RecalibrateInternalRotationVars(Vector3 rotationPoint)
     {
        // Vector3 start = rb.position;
        // directionToRotate = (rotationPoint - start).normalized;
@@ -265,16 +256,22 @@ public class TankEnemy : Enemy, IEnemy
         }
         else
         {
+           
           base.FixedUpdate(); 
         }
 
+    }
+
+    protected virtual void RotationFinishNotification(float angle )
+    {
+        
     }
 
     private void DoRotationStep()
     {
         if(internalTick >= rotationDuration)
         {
-            transform.rotation = Quaternion.Euler(0f, 0f, endRotation);
+            transform.rotation = !lockRotation ? Quaternion.Euler(0f, 0f, endRotation) : Quaternion.Euler(0f, 0f, startRotation);
             internalTick = 0;
             internalState = internalStates.DEFAULT;
             if(currentState == EnemyState.Spawning)
@@ -285,11 +282,12 @@ public class TankEnemy : Enemy, IEnemy
             {
                 EnemyServerSpawnerManager.Instance.StartEnemyMove(this, direction, distance);
             }
+            RotationFinishNotification(endRotation);
             return;
         }
         internalTick+= Time.deltaTime;
         float t = internalTick / rotationDuration;
-        float currentAngle = Mathf.LerpAngle(startRotation, endRotation, t);
+        float currentAngle = !lockRotation ? Mathf.LerpAngle(startRotation, endRotation, t) : startRotation;
         transform.rotation = Quaternion.Euler(0f, 0f, currentAngle);
     }
 

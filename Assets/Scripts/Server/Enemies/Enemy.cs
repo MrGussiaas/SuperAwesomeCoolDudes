@@ -1,5 +1,6 @@
 using UnityEngine;
 using Mirror;
+using TMPro;
 
 
 public class Enemy : NetworkBehaviour, IDamagable, IEnemy
@@ -29,6 +30,11 @@ public class Enemy : NetworkBehaviour, IDamagable, IEnemy
     [SerializeField]
     protected float moveDistance = .25f;
 
+    [SerializeField]
+    protected LayerMask wallLayer;
+
+    private bool nextMoveBumped = false;
+
     protected int spawnerId;
 
     public int SpawnerId {get {return spawnerId;} set{spawnerId = value;}}
@@ -39,7 +45,11 @@ public class Enemy : NetworkBehaviour, IDamagable, IEnemy
 
     protected Vector2 startPosition;
 
-        protected const string NON_COLLISION_LAYER = "NonCollision";
+    protected const string NON_COLLISION_LAYER = "NonCollision";
+
+    private BoxCollider2D collider;
+
+    public const string WALL="Wall";
     static Vector3 ZERO_VECTOR = Vector3.zero;
     private const string ENEMY_LAYER = "EnemyHitBox";
     private Vector3 GetSlightlyOffsetDirection(Vector3 originalDir, float maxOffsetDeg = 25f)
@@ -75,9 +85,17 @@ public class Enemy : NetworkBehaviour, IDamagable, IEnemy
             }
             case EnemyState.Idle :
             {
+            
                 direction = RecalibrateDirection();
                 internalTime = 0;
                 distance = RecalibrateDistance();
+                float adjustedDistance = CheckWallHit(distance);
+
+                if (adjustedDistance < distance)
+                {
+                    distance = adjustedDistance;
+                    nextMoveBumped = true;
+                }
                 currentState = EnemyState.Moving;
                 startPosition = rb.position;
                 //EnemyServerSpawnerManager.Instance.StartEnemyMove(this, direction, distance);
@@ -95,6 +113,36 @@ public class Enemy : NetworkBehaviour, IDamagable, IEnemy
         }
     }
     
+    private void DrawSquare(Vector2 center, float size, Color color)
+    {
+        float half = size * 0.5f;
+
+        Vector3 bl = new Vector3(center.x - half, center.y - half);
+        Vector3 br = new Vector3(center.x + half, center.y - half);
+        Vector3 tr = new Vector3(center.x + half, center.y + half);
+        Vector3 tl = new Vector3(center.x - half, center.y + half);
+
+        Debug.DrawLine(bl, br, color, 5f);
+        Debug.DrawLine(br, tr, color, 5f);
+        Debug.DrawLine(tr, tl, color, 5f);
+        Debug.DrawLine(tl, bl, color, 5f);
+    }
+
+    private float CheckWallHit(float movementDistance)
+    {
+        Vector2 size = collider.size * transform.localScale;
+        float angle = transform.eulerAngles.z;
+        Vector2 origin = transform.position;
+
+        RaycastHit2D hit = Physics2D.BoxCast(origin, size, 0, direction, movementDistance, wallLayer);
+
+        if (hit.collider != null && hit.collider.CompareTag(WALL))
+        {
+            return Mathf.Max(0, hit.distance - 0.1f);
+        }
+
+        return movementDistance;
+    }
 
     protected virtual void DoInitialStepAfterRecalibration()
     {
@@ -111,6 +159,7 @@ public class Enemy : NetworkBehaviour, IDamagable, IEnemy
         Vector3 playerDirection = GetRotationDirectionToNearestPlayer();
         return  GetSlightlyOffsetDirection(playerDirection);
     }
+    
 
     protected virtual float RecalibrateDistance()
     {
@@ -147,6 +196,11 @@ public class Enemy : NetworkBehaviour, IDamagable, IEnemy
             currentState = EnemyState.Idle;
             rb.MovePosition(end);
             EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);
+            if (nextMoveBumped)
+            {
+                DoWallBump();
+                nextMoveBumped = false;
+            }
             ArrivedAtDestination();
             return;
         }
@@ -169,6 +223,7 @@ public class Enemy : NetworkBehaviour, IDamagable, IEnemy
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        collider = GetComponent<BoxCollider2D>();
         CachePlayers();
     }
 
@@ -230,6 +285,7 @@ public class Enemy : NetworkBehaviour, IDamagable, IEnemy
         {   
             rb.position = startPosition;
         }
+        nextMoveBumped = false;
         transform.position = startPosition;
         initialWayPoint = direction;
         currentState = EnemyState.Spawning;
@@ -238,7 +294,7 @@ public class Enemy : NetworkBehaviour, IDamagable, IEnemy
 
     public virtual void TakeDamage() { }
 
-    public void DoWallBump(Vector3 bumpedPosition, Vector2 contactVector)
+    public virtual void DoWallBump()
     {
         currentState = EnemyState.Idle;
         EnemyServerSpawnerManager.Instance.FinishEnemyMove(this, transform.position, false);

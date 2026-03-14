@@ -61,6 +61,10 @@ MonoBehaviour:
   - {fileID: 7521542991204252329, guid: 01b63b59e96e7f244bcd6c17b6bf6400, type: 3}
   - {fileID: 7521542991204252329, guid: 01b63b59e96e7f244bcd6c17b6bf6400, type: 3}
   - {fileID: 7521542991204252329, guid: 01b63b59e96e7f244bcd6c17b6bf6400, type: 3}
+  - {fileID: 5774205739251877281, guid: 4db460f4a210f164fa425aab35fcaa4f, type: 3}
+  - {fileID: 5774205739251877281, guid: 4db460f4a210f164fa425aab35fcaa4f, type: 3}
+  - {fileID: 5774205739251877281, guid: 4db460f4a210f164fa425aab35fcaa4f, type: 3}
+  - {fileID: 5774205739251877281, guid: 4db460f4a210f164fa425aab35fcaa4f, type: 3}
   northSpawnPos: {x: 0, y: 2.97, z: 0}
   eastSpawnPos: {x: 4.3, y: 0, z: 0}
   southSpawnPos: {x: 0, y: -2.62, z: 0}

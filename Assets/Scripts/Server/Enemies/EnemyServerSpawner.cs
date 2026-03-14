@@ -30,7 +30,6 @@ public class EnemyServerSpawner : NetworkBehaviour
 
     private Vector3 ConvertInitialWayPointToLocalPosition()
     {
-        Debug.Log("initialPoint: " + transform.position + " " + initalWayPoint);
         return transform.position + initalWayPoint;
     }
 

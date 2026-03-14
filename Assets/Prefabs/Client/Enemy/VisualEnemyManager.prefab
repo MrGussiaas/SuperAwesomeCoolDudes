@@ -48,6 +48,7 @@ MonoBehaviour:
   visualEnemyPoolPrefab: {fileID: 277294891111770672, guid: b05f9067773b4b146b61a6b3800a5f59, type: 3}
   visualEnemyFastPoolPrefab: {fileID: 277294891111770672, guid: 027bee1502f732b45ae2fb89fc8fb73e, type: 3}
   visualEnemyShrapnelPoolPrefab: {fileID: 277294891111770672, guid: 43fab939f93a9014882e68c6c3a430b9, type: 3}
+  visualEnemyLaserDronePoolPrefab: {fileID: 2142589169075689581, guid: 4d9cf30b7eeda5645a02284f5c6acf3c, type: 3}
   visualEnemyTankPoolPrefab: {fileID: 277294891111770672, guid: 4f0e6cbcd2c8e5747a8daaf7680a1ef8, type: 3}
 --- !u!114 &2983285014230827661
 MonoBehaviour:

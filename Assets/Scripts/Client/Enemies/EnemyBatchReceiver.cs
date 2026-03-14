@@ -70,6 +70,16 @@ public class EnemyBatchReceiver : MonoBehaviour
                     explosion.StartExplosion(pos);
                     break;
                 }
+            case EnemyCommandType.ACTIVATE_WEAPON :
+                {
+                    visualEnemy.ActivateWeapon();
+                    break;
+                }
+            case EnemyCommandType.DE_ACTIVATE_WEAPON:
+                {
+                    visualEnemy.DeActivateWeapon();
+                    break;
+                }
 
         }
     }

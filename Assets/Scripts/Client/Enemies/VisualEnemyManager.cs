@@ -16,6 +16,9 @@ public class VisualEnemyManager : MonoBehaviour
     private GameObject visualEnemyShrapnelPoolPrefab;
 
     [SerializeField]
+    private GameObject visualEnemyLaserDronePoolPrefab;
+
+    [SerializeField]
     private GameObject visualEnemyTankPoolPrefab;
 
     public static VisualEnemyManager Instance { get; private set; }
@@ -31,6 +34,8 @@ public class VisualEnemyManager : MonoBehaviour
 
     private VisualEnemyPool visualEnemyTankPool;
 
+    private VisualEnemyPool visualEnemyLaserDronePool;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -43,10 +48,12 @@ public class VisualEnemyManager : MonoBehaviour
         GameObject poolInstanceFast = Instantiate(visualEnemyFastPoolPrefab, transform);
         GameObject poolInstanceShrapnel = Instantiate(visualEnemyShrapnelPoolPrefab, transform);
         GameObject poolInstanceTank = Instantiate(visualEnemyTankPoolPrefab, transform);
+        GameObject poolInstanceLaserDrone = Instantiate(visualEnemyLaserDronePoolPrefab, transform);
         visualEnemyPool = poolInstance.GetComponent<VisualEnemyPool>();
         visualEnemyFastPool = poolInstanceFast.GetComponent<VisualEnemyPool>();
         visualEnemyShrapnelPool = poolInstanceShrapnel.GetComponent<VisualEnemyPool>();
         visualEnemyTankPool = poolInstanceTank.GetComponent<VisualEnemyPool>();
+        visualEnemyLaserDronePool = poolInstanceLaserDrone.GetComponent<VisualEnemyPool>();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -106,6 +113,12 @@ public class VisualEnemyManager : MonoBehaviour
                     activeVisuals.Remove(netId);
                     break;
                 }
+            case EnemyType.LaserDrone :
+                {
+                    PerformRelease(visualEnemyLaserDronePool, vb);
+                    activeVisuals.Remove(netId);
+                    break;
+                }
             default : break;
         }
     }
@@ -142,6 +155,10 @@ public class VisualEnemyManager : MonoBehaviour
                 
             case EnemyType.TankEnemy:
                 ve = visualEnemyTankPool.Get();
+                ve.Begin();
+                return ve;
+            case EnemyType.LaserDrone:
+                ve = visualEnemyLaserDronePool.Get();
                 ve.Begin();
                 return ve;
             default :

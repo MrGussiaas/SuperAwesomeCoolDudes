@@ -171,6 +171,9 @@ MonoBehaviour:
   moveSpeed: 1
   enemyType: 0
   moveDistance: 0.25
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 2048
 --- !u!50 &766471452369022480
 Rigidbody2D:
   serializedVersion: 4
@@ -179,7 +182,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 28108881478411054}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
